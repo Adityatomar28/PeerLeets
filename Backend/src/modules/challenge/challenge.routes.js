@@ -1,10 +1,7 @@
-// Challenge routes placeholder
-
 const express = require('express');
 const router = express.Router();
+const challengeController = require('../../controllers/challenge.controller');
 
-router.get('/:id', (req, res) => {
-  res.json({ message: 'get challenge route' });
-});
+router.get('/:id', challengeController.getChallenge);
 
 module.exports = router;

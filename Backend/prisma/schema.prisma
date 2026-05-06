@@ -11,12 +11,118 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+enum challengeStatus{
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
+}
+enum GroupRole{
+  ADMIN
+  MEMBER
+}
 
 model User {
-  idx  String @id@default(uuid())
+  id  String @id@default(uuid())
   name String
   email String @unique
-  password String
-  
+  passwordHash String
+
+  createdAt DateTime @default(now())
+
+  memberships GroupMember[]
+  submissions Submission[]
+  stats UserGroupStats[]
+
+  createdChallenges Dailychallenge[] @relation("CreatedCreator")
+  createdGroups Group[] @relation("GroupCreator)
 
 }
+
+model Group{
+  id String @id@default(uuid())
+  name String
+  invitedCode String @unique
+
+  creatorId String
+  creator User @relation("GroupCreator",fields;[creatorId],refernce:[id])
+
+  members GroupMember[]
+  challenges Dailychallenge[]
+  stats UserGroupStats[]
+
+}
+
+model GroupMember{
+  id String @id@default(uuid())
+  userId String
+  groupId String
+  role GroupRole @default(MEMBER)
+
+  user User @relation(fields:[userId],refernece:[id])
+  group Group @relation(fields:[groupId],refernce:[id])
+
+  @@unique([userId,groupId])
+
+}
+
+model Dailychallenge{
+  id String @id@unique(uuid())
+  groupId String
+  date DateTime 
+  problemLink String?
+
+
+  status challengeStatus @default(WAITING)
+
+  isAutomated Boolean @default(false)
+
+  createdById String?
+  creator User?  @realtion("challengeCreator",fields:[createdById],references:[id])
+
+  group  Group @relation(fields:[groupId],references:[id])
+  submissions Submission[]
+  
+  @@unique([groupId,date])
+  @@index([groupId,date])
+
+}
+
+model Submission{
+  id String @id@default(uuid())
+  userId String
+  challengeId String
+  groupId String
+
+  solved Boolean @default(false)
+
+  solvedAt DateTime?
+  timeTaken Int?
+  solutionLink String?
+
+  user user @relation(fields:[userId],refernece:[id])
+  challenge Dailychallenge @relation(fields:[challengeId],refernece:[id])
+  group Group @relation(fields:[groupId],refernece:[id])
+
+  @@unique([userId,challengeId])
+ 
+}
+
+model UserGroupStats{
+  id String @id@defaulr(uuid())
+  userId String
+  groupiD String
+
+  totalSolved Int @default(0)
+  last7DaysSolved Int @default(0)
+  last30DaysSolved Int @default(0)
+  curentStreak Int @default(0)
+
+  user User @relation(fields:[userId],refernece:[id])
+  group Group @relation(fields:[groupId],refernece:[id])
+
+  @@unique([userId,groupId])
+  @@index([groupId, last7DaysSolved, currentStreak])
+
+} 
+

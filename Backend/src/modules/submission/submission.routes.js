@@ -1,10 +1,7 @@
-// Submission routes placeholder
-
 const express = require('express');
 const router = express.Router();
+const submissionController = require('../../controllers/submission.controller');
 
-router.post('/', (req, res) => {
-  res.json({ message: 'submission route' });
-});
+router.post('/', submissionController.createSubmission);
 
 module.exports = router;

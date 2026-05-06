@@ -1,10 +1,7 @@
-// Auth routes placeholder
-
 const express = require('express');
 const router = express.Router();
+const loginController = require('../../controllers/login.controller');
 
-router.post('/login', (req, res) => {
-  res.json({ message: 'auth login route' });
-});
+router.post('/login', loginController.login);
 
 module.exports = router;

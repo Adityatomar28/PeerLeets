@@ -1,10 +1,7 @@
-// User routes placeholder
-
 const express = require('express');
 const router = express.Router();
+const userController = require('../../controllers/user.controller');
 
-router.get('/:id', (req, res) => {
-  res.json({ message: 'get user route' });
-});
+router.get('/:id', userController.getUser);
 
 module.exports = router;
