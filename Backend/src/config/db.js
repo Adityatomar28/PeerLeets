@@ -1,5 +1,7 @@
-// Prisma + Mongo setup placeholder
 
-module.exports = {
-  // TODO: initialize Prisma client and MongoDB connection
-};
+
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+export default prisma;
