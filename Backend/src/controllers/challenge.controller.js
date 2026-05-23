@@ -1,7 +1,5 @@
 // Challenge controller
 
-exports.getChallenge = (req, res) => {
+export const getChallenge = (req, res) => {
   res.json({ message: 'get challenge route' });
-  
 };
-

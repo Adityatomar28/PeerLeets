@@ -1,5 +1,5 @@
 // Submission service placeholder
 
-module.exports = {
+export default {
   // TODO: implement submission business logic
 };

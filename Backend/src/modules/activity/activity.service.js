@@ -1,5 +1,5 @@
 // Activity service placeholder
 
-module.exports = {
+export default {
   // TODO: implement activity business logic
 };

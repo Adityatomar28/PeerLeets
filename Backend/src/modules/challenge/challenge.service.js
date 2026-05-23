@@ -1,5 +1,5 @@
 // Challenge service placeholder
 
-module.exports = {
+export default {
   // TODO: implement challenge business logic
 };

@@ -1,5 +1,5 @@
-// Submission utilities placeholder
+// Submission utils placeholder
 
-module.exports = {
-  // TODO: shared submission helper functions
+export default {
+  // TODO: implement submission utilities
 };

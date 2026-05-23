@@ -1,5 +1,5 @@
 // Auth validation placeholder
 
-module.exports = {
+export default {
   // TODO: define auth request validation schemas
 };

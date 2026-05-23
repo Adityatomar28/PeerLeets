@@ -1,5 +1,5 @@
 // Leaderboard service placeholder
 
-module.exports = {
+export default {
   // TODO: implement leaderboard business logic
 };

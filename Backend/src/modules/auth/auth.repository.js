@@ -1,5 +1,4 @@
-// Auth repository placeholder
-import prisma from "../../config/db";
+import prisma from "../../config/db.js";
 
 export const createUser = async (data) => {
     return prisma.user.create({
@@ -22,4 +21,5 @@ export const findUserById = async (id) => {
         },
     });
 };
+
 

@@ -1,5 +1,5 @@
 // Group controller
 
-exports.getGroup = (req, res) => {
+export const getGroup = (req, res) => {
   res.json({ message: 'get group route' });
 };

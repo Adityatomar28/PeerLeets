@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -7,19 +10,105 @@ datasource db {
   provider = "postgresql"
 }
 
-// Starter models — replace with your own
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+enum ChallengeStatus {
+  WAITING
+  ACTIVE
+  COMPLETED
+  FAILED
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+enum GroupRole {
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  memberships       GroupMember[]
+  submissions       Submission[]
+  stats             UserGroupStats[]
+  createdChallenges DailyChallenge[] @relation("ChallengeCreator")
+  createdGroups     Group[]          @relation("GroupCreator")
+}
+
+model Group {
+  id          String @id @default(uuid())
+  name        String
+  invitedCode String @unique
+
+  creatorId String
+  creator   User   @relation("GroupCreator", fields: [creatorId], references: [id])
+
+  members     GroupMember[]
+  challenges  DailyChallenge[]
+  stats       UserGroupStats[]
+  submissions Submission[]
+}
+
+model GroupMember {
+  id      String    @id @default(uuid())
+  userId  String
+  groupId String
+  role    GroupRole @default(MEMBER)
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+model DailyChallenge {
+  id          String          @id @default(uuid())
+  groupId     String
+  date        DateTime
+  problemLink String?
+  status      ChallengeStatus @default(WAITING)
+  isAutomated Boolean         @default(false)
+
+  createdById String?
+  creator     User?   @relation("ChallengeCreator", fields: [createdById], references: [id])
+  group       Group   @relation(fields: [groupId], references: [id])
+
+  submissions Submission[]
+
+  @@unique([groupId, date])
+  @@index([groupId, date])
+}
+
+model Submission {
+  id           String    @id @default(uuid())
+  userId       String
+  challengeId  String
+  groupId      String
+  solved       Boolean   @default(false)
+  solvedAt     DateTime?
+  timeTaken    Int?
+  solutionLink String?
+
+  user      User           @relation(fields: [userId], references: [id])
+  challenge DailyChallenge @relation(fields: [challengeId], references: [id])
+  group     Group          @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, challengeId])
+}
+
+model UserGroupStats {
+  id               String @id @default(uuid())
+  userId           String
+  groupId          String
+  totalSolved      Int    @default(0)
+  last7DaysSolved  Int    @default(0)
+  last30DaysSolved Int    @default(0)
+  currentStreak    Int    @default(0)
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+  @@index([groupId, last7DaysSolved, currentStreak])
 }

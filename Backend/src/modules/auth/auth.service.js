@@ -1,4 +1,3 @@
-// Auth service placeholder
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -6,7 +5,6 @@ import {
   createUser,
   findUserByEmail,
 } from "./auth.repository.js";
-
 
 const generateToken = (userId) => {
   return jwt.sign(
@@ -29,13 +27,14 @@ export const signupService = async ({
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const user = await createUser({
-    name, email, password: hashedPassword,
+    name,
+    email,
+    passwordHash: hashedPassword,
   });
 
   const token = generateToken(user.id);
 
   return { user, token };
-
 };
 
 export const loginService = async ({ email, password }) => {
@@ -43,21 +42,11 @@ export const loginService = async ({ email, password }) => {
   if (!user) {
     throw new Error("User not found");
   }
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
 
   if (!isPasswordValid) {
-    throw new Error("Invalid Password")
+    throw new Error("Invalid Password");
   }
   const token = generateToken(user.id);
   return { user, token };
-
-};
-
-
-
-
-module.exports = {
-  // TODO: implement auth business logic
-  signupService,
-  loginService,
 };

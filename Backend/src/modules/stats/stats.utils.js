@@ -1,5 +1,5 @@
-// Stats utilities placeholder
+// Stats utils placeholder
 
-module.exports = {
-  // TODO: shared stats helper functions
+export default {
+  // TODO: implement stats utilities
 };

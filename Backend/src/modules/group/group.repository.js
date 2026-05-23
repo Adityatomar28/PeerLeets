@@ -1,5 +1,5 @@
 // Group repository placeholder
 
-module.exports = {
+export default {
   // TODO: implement group data access
 };

@@ -1,5 +1,5 @@
 // Submission controller
 
-exports.createSubmission = (req, res) => {
+export const createSubmission = (req, res) => {
   res.json({ message: 'post submission route' });
 };

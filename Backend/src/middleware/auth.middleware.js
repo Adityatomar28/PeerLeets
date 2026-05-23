@@ -1,19 +1,15 @@
-// JWT verification middleware placeholder
-
 import jwt from "jsonwebtoken";
 import { findUserById } from "../modules/auth/auth.repository.js";
 
-export const protectRoute = async (
-  req, res, next
-) => {
+export const protectRoute = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authoroization;
+    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer')) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: "Unauthorized",
+      });
     }
 
     const token = authHeader.split(' ')[1];
@@ -25,21 +21,16 @@ export const protectRoute = async (
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized"
-      })
+        message: "Unauthorized",
+      });
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(500).json({
+    return res.status(401).json({
       success: false,
-      message: error.message,
+      message: "Unauthorized: " + error.message,
     });
   }
-
-};
-
-module.exports = {
-  protectRoute,
 };

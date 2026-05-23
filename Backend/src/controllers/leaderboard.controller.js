@@ -1,5 +1,5 @@
 // Leaderboard controller
 
-exports.getLeaderboard = (req, res) => {
+export const getLeaderboard = (req, res) => {
   res.json({ message: 'get leaderboard route' });
 };

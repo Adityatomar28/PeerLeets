@@ -1,5 +1,5 @@
 // Stats service placeholder
 
-module.exports = {
-  // TODO: implement streak and stat updates
+export default {
+  // TODO: implement stats business logic
 };

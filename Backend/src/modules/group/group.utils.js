@@ -1,5 +1,5 @@
-// Group utilities placeholder
+// Group utils placeholder
 
-module.exports = {
-  // TODO: shared group helper functions
+export default {
+  // TODO: implement group utilities
 };

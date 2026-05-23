@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import * as submissionController from '../../controllers/submission.controller.js';
+
 const router = express.Router();
-const submissionController = require('../../controllers/submission.controller');
 
 router.post('/', submissionController.createSubmission);
 
-module.exports = router;
+export default router;

@@ -1,5 +1,5 @@
 // User repository placeholder
 
-module.exports = {
+export default {
   // TODO: implement user data access
 };

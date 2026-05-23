@@ -1,5 +1,5 @@
-// Activity utilities placeholder
+// Activity utils placeholder
 
-module.exports = {
-  // TODO: shared activity helper functions
+export default {
+  // TODO: implement activity utilities
 };

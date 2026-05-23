@@ -122,16 +122,55 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   email: 'email',
-  name: 'name'
+  passwordHash: 'passwordHash',
+  createdAt: 'createdAt'
 };
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.GroupScalarFieldEnum = {
   id: 'id',
-  title: 'title',
-  content: 'content',
-  published: 'published',
-  authorId: 'authorId'
+  name: 'name',
+  invitedCode: 'invitedCode',
+  creatorId: 'creatorId'
+};
+
+exports.Prisma.GroupMemberScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  groupId: 'groupId',
+  role: 'role'
+};
+
+exports.Prisma.DailyChallengeScalarFieldEnum = {
+  id: 'id',
+  groupId: 'groupId',
+  date: 'date',
+  problemLink: 'problemLink',
+  status: 'status',
+  isAutomated: 'isAutomated',
+  createdById: 'createdById'
+};
+
+exports.Prisma.SubmissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  challengeId: 'challengeId',
+  groupId: 'groupId',
+  solved: 'solved',
+  solvedAt: 'solvedAt',
+  timeTaken: 'timeTaken',
+  solutionLink: 'solutionLink'
+};
+
+exports.Prisma.UserGroupStatsScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  groupId: 'groupId',
+  totalSolved: 'totalSolved',
+  last7DaysSolved: 'last7DaysSolved',
+  last30DaysSolved: 'last30DaysSolved',
+  currentStreak: 'currentStreak'
 };
 
 exports.Prisma.SortOrder = {
@@ -148,11 +187,25 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.GroupRole = exports.$Enums.GroupRole = {
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER'
+};
 
+exports.ChallengeStatus = exports.$Enums.ChallengeStatus = {
+  WAITING: 'WAITING',
+  ACTIVE: 'ACTIVE',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Post: 'Post'
+  Group: 'Group',
+  GroupMember: 'GroupMember',
+  DailyChallenge: 'DailyChallenge',
+  Submission: 'Submission',
+  UserGroupStats: 'UserGroupStats'
 };
 
 /**

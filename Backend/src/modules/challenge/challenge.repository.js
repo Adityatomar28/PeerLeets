@@ -1,5 +1,5 @@
 // Challenge repository placeholder
 
-module.exports = {
+export default {
   // TODO: implement challenge data access
 };

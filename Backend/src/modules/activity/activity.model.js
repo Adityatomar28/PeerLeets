@@ -1,5 +1,5 @@
-// Activity model placeholder for MongoDB
+// Activity model placeholder
 
-module.exports = {
-  // TODO: define activity schema/model for MongoDB
+export default {
+  // TODO: define activity model
 };

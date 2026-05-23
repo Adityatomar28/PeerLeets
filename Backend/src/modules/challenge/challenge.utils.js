@@ -1,5 +1,5 @@
-// Challenge utilities placeholder
+// Challenge utils placeholder
 
-module.exports = {
-  // TODO: shared challenge helper functions
+export default {
+  // TODO: implement challenge utilities
 };

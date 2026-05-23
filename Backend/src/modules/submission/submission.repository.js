@@ -1,5 +1,5 @@
 // Submission repository placeholder
 
-module.exports = {
+export default {
   // TODO: implement submission data access
 };

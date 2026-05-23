@@ -1,5 +1,5 @@
 // Group service placeholder
 
-module.exports = {
+export default {
   // TODO: implement group business logic
 };

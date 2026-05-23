@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import * as groupController from '../../controllers/group.controller.js';
+
 const router = express.Router();
-const groupController = require('../../controllers/group.controller');
 
 router.get('/:id', groupController.getGroup);
 
-module.exports = router;
+export default router;

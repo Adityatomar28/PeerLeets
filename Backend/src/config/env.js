@@ -1,5 +1,5 @@
 // Environment configuration placeholder
 
-module.exports = {
+export default {
   // TODO: load and export environment variables
 };
