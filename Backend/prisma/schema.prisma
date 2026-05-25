@@ -13,11 +13,10 @@ datasource db {
 enum ChallengeStatus {
   WAITING
   ACTIVE
-  COMPLETED
-  FAILED
+  CLOSED
 }
 
-enum GroupRole {
+enum Role {
   ADMIN
   MEMBER
 }
@@ -33,16 +32,14 @@ model User {
   submissions       Submission[]
   stats             UserGroupStats[]
   createdChallenges DailyChallenge[] @relation("ChallengeCreator")
-  createdGroups     Group[]          @relation("GroupCreator")
 }
 
 model Group {
-  id          String @id @default(uuid())
-  name        String
-  invitedCode String @unique
-
-  creatorId String
-  creator   User   @relation("GroupCreator", fields: [creatorId], references: [id])
+  id         String        @id @default(uuid())
+  name       String
+  inviteCode String        @unique
+  createdBy  String
+  createdAt  DateTime      @default(now())
 
   members     GroupMember[]
   challenges  DailyChallenge[]
@@ -51,64 +48,92 @@ model Group {
 }
 
 model GroupMember {
-  id      String    @id @default(uuid())
-  userId  String
-  groupId String
-  role    GroupRole @default(MEMBER)
+  id        String   @id @default(uuid())
 
-  user  User  @relation(fields: [userId], references: [id])
-  group Group @relation(fields: [groupId], references: [id])
+  userId    String
+  groupId   String
+
+  role      Role     @default(MEMBER)
+
+  joinedAt  DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
 
   @@unique([userId, groupId])
 }
 
 model DailyChallenge {
-  id          String          @id @default(uuid())
+  id          String            @id @default(uuid())
+
   groupId     String
+  createdBy   String?
+
   date        DateTime
   problemLink String?
-  status      ChallengeStatus @default(WAITING)
-  isAutomated Boolean         @default(false)
 
-  createdById String?
-  creator     User?   @relation("ChallengeCreator", fields: [createdById], references: [id])
-  group       Group   @relation(fields: [groupId], references: [id])
+  status      ChallengeStatus   @default(WAITING)
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  group        Group @relation(fields: [groupId], references: [id])
+
+  creator      User? @relation("ChallengeCreator", fields: [createdBy], references: [id])
 
   submissions Submission[]
 
   @@unique([groupId, date])
-  @@index([groupId, date])
 }
 
 model Submission {
-  id           String    @id @default(uuid())
-  userId       String
-  challengeId  String
-  groupId      String
-  solved       Boolean   @default(false)
-  solvedAt     DateTime?
-  timeTaken    Int?
-  solutionLink String?
+  id           String   @id @default(uuid())
 
-  user      User           @relation(fields: [userId], references: [id])
-  challenge DailyChallenge @relation(fields: [challengeId], references: [id])
-  group     Group          @relation(fields: [groupId], references: [id])
+  userId       String
+  groupId      String
+  challengeId  String
+
+  solved       Boolean  @default(true)
+
+  solvedAt     DateTime @default(now())
+
+  timeTaken    Int?
+
+  createdAt    DateTime @default(now())
+
+  user         User @relation(fields: [userId], references: [id])
+  group        Group @relation(fields: [groupId], references: [id])
+  challenge    DailyChallenge @relation(fields: [challengeId], references: [id])
 
   @@unique([userId, challengeId])
 }
 
 model UserGroupStats {
-  id               String @id @default(uuid())
-  userId           String
-  groupId          String
-  totalSolved      Int    @default(0)
-  last7DaysSolved  Int    @default(0)
-  last30DaysSolved Int    @default(0)
-  currentStreak    Int    @default(0)
+  id                 String   @id @default(uuid())
 
-  user  User  @relation(fields: [userId], references: [id])
-  group Group @relation(fields: [groupId], references: [id])
+  userId             String
+  groupId            String
+
+  currentStreak      Int      @default(0)
+
+  longestStreak      Int      @default(0)
+
+  totalSolved        Int      @default(0)
+
+  last7DaysSolved    Int      @default(0)
+
+  last30DaysSolved   Int      @default(0)
+
+  freezeCount        Int      @default(2)
+
+  lastSolvedDate     DateTime?
+
+  createdAt          DateTime @default(now())
+
+  updatedAt          DateTime @updatedAt
+
+  user               User @relation(fields: [userId], references: [id])
+  group              Group @relation(fields: [groupId], references: [id])
 
   @@unique([userId, groupId])
-  @@index([groupId, last7DaysSolved, currentStreak])
 }

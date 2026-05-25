@@ -51,19 +51,18 @@ export namespace $Enums {
   export const ChallengeStatus: {
   WAITING: 'WAITING',
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED'
+  CLOSED: 'CLOSED'
 };
 
 export type ChallengeStatus = (typeof ChallengeStatus)[keyof typeof ChallengeStatus]
 
 
-export const GroupRole: {
+export const Role: {
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER'
 };
 
-export type GroupRole = (typeof GroupRole)[keyof typeof GroupRole]
+export type Role = (typeof Role)[keyof typeof Role]
 
 }
 
@@ -71,9 +70,9 @@ export type ChallengeStatus = $Enums.ChallengeStatus
 
 export const ChallengeStatus: typeof $Enums.ChallengeStatus
 
-export type GroupRole = $Enums.GroupRole
+export type Role = $Enums.Role
 
-export const GroupRole: typeof $Enums.GroupRole
+export const Role: typeof $Enums.Role
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1356,7 +1355,6 @@ export namespace Prisma {
     submissions: number
     stats: number
     createdChallenges: number
-    createdGroups: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1364,7 +1362,6 @@ export namespace Prisma {
     submissions?: boolean | UserCountOutputTypeCountSubmissionsArgs
     stats?: boolean | UserCountOutputTypeCountStatsArgs
     createdChallenges?: boolean | UserCountOutputTypeCountCreatedChallengesArgs
-    createdGroups?: boolean | UserCountOutputTypeCountCreatedGroupsArgs
   }
 
   // Custom InputTypes
@@ -1404,13 +1401,6 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountCreatedChallengesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DailyChallengeWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
-  export type UserCountOutputTypeCountCreatedGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: GroupWhereInput
   }
 
 
@@ -1675,7 +1665,6 @@ export namespace Prisma {
     submissions?: boolean | User$submissionsArgs<ExtArgs>
     stats?: boolean | User$statsArgs<ExtArgs>
     createdChallenges?: boolean | User$createdChallengesArgs<ExtArgs>
-    createdGroups?: boolean | User$createdGroupsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1709,7 +1698,6 @@ export namespace Prisma {
     submissions?: boolean | User$submissionsArgs<ExtArgs>
     stats?: boolean | User$statsArgs<ExtArgs>
     createdChallenges?: boolean | User$createdChallengesArgs<ExtArgs>
-    createdGroups?: boolean | User$createdGroupsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1722,7 +1710,6 @@ export namespace Prisma {
       submissions: Prisma.$SubmissionPayload<ExtArgs>[]
       stats: Prisma.$UserGroupStatsPayload<ExtArgs>[]
       createdChallenges: Prisma.$DailyChallengePayload<ExtArgs>[]
-      createdGroups: Prisma.$GroupPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2128,7 +2115,6 @@ export namespace Prisma {
     submissions<T extends User$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, User$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stats<T extends User$statsArgs<ExtArgs> = {}>(args?: Subset<T, User$statsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGroupStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     createdChallenges<T extends User$createdChallengesArgs<ExtArgs> = {}>(args?: Subset<T, User$createdChallengesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    createdGroups<T extends User$createdGroupsArgs<ExtArgs> = {}>(args?: Subset<T, User$createdGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2652,30 +2638,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.createdGroups
-   */
-  export type User$createdGroupsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Group
-     */
-    select?: GroupSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Group
-     */
-    omit?: GroupOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: GroupInclude<ExtArgs> | null
-    where?: GroupWhereInput
-    orderBy?: GroupOrderByWithRelationInput | GroupOrderByWithRelationInput[]
-    cursor?: GroupWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: GroupScalarFieldEnum | GroupScalarFieldEnum[]
-  }
-
-  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2707,22 +2669,25 @@ export namespace Prisma {
   export type GroupMinAggregateOutputType = {
     id: string | null
     name: string | null
-    invitedCode: string | null
-    creatorId: string | null
+    inviteCode: string | null
+    createdBy: string | null
+    createdAt: Date | null
   }
 
   export type GroupMaxAggregateOutputType = {
     id: string | null
     name: string | null
-    invitedCode: string | null
-    creatorId: string | null
+    inviteCode: string | null
+    createdBy: string | null
+    createdAt: Date | null
   }
 
   export type GroupCountAggregateOutputType = {
     id: number
     name: number
-    invitedCode: number
-    creatorId: number
+    inviteCode: number
+    createdBy: number
+    createdAt: number
     _all: number
   }
 
@@ -2730,22 +2695,25 @@ export namespace Prisma {
   export type GroupMinAggregateInputType = {
     id?: true
     name?: true
-    invitedCode?: true
-    creatorId?: true
+    inviteCode?: true
+    createdBy?: true
+    createdAt?: true
   }
 
   export type GroupMaxAggregateInputType = {
     id?: true
     name?: true
-    invitedCode?: true
-    creatorId?: true
+    inviteCode?: true
+    createdBy?: true
+    createdAt?: true
   }
 
   export type GroupCountAggregateInputType = {
     id?: true
     name?: true
-    invitedCode?: true
-    creatorId?: true
+    inviteCode?: true
+    createdBy?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -2824,8 +2792,9 @@ export namespace Prisma {
   export type GroupGroupByOutputType = {
     id: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt: Date
     _count: GroupCountAggregateOutputType | null
     _min: GroupMinAggregateOutputType | null
     _max: GroupMaxAggregateOutputType | null
@@ -2848,9 +2817,9 @@ export namespace Prisma {
   export type GroupSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    invitedCode?: boolean
-    creatorId?: boolean
-    creator?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
     members?: boolean | Group$membersArgs<ExtArgs>
     challenges?: boolean | Group$challengesArgs<ExtArgs>
     stats?: boolean | Group$statsArgs<ExtArgs>
@@ -2861,46 +2830,41 @@ export namespace Prisma {
   export type GroupSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    invitedCode?: boolean
-    creatorId?: boolean
-    creator?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
   }, ExtArgs["result"]["group"]>
 
   export type GroupSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    invitedCode?: boolean
-    creatorId?: boolean
-    creator?: boolean | UserDefaultArgs<ExtArgs>
+    inviteCode?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
   }, ExtArgs["result"]["group"]>
 
   export type GroupSelectScalar = {
     id?: boolean
     name?: boolean
-    invitedCode?: boolean
-    creatorId?: boolean
+    inviteCode?: boolean
+    createdBy?: boolean
+    createdAt?: boolean
   }
 
-  export type GroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "invitedCode" | "creatorId", ExtArgs["result"]["group"]>
+  export type GroupOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "inviteCode" | "createdBy" | "createdAt", ExtArgs["result"]["group"]>
   export type GroupInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | UserDefaultArgs<ExtArgs>
     members?: boolean | Group$membersArgs<ExtArgs>
     challenges?: boolean | Group$challengesArgs<ExtArgs>
     stats?: boolean | Group$statsArgs<ExtArgs>
     submissions?: boolean | Group$submissionsArgs<ExtArgs>
     _count?: boolean | GroupCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type GroupIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | UserDefaultArgs<ExtArgs>
-  }
-  export type GroupIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | UserDefaultArgs<ExtArgs>
-  }
+  export type GroupIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type GroupIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $GroupPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Group"
     objects: {
-      creator: Prisma.$UserPayload<ExtArgs>
       members: Prisma.$GroupMemberPayload<ExtArgs>[]
       challenges: Prisma.$DailyChallengePayload<ExtArgs>[]
       stats: Prisma.$UserGroupStatsPayload<ExtArgs>[]
@@ -2909,8 +2873,9 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
-      invitedCode: string
-      creatorId: string
+      inviteCode: string
+      createdBy: string
+      createdAt: Date
     }, ExtArgs["result"]["group"]>
     composites: {}
   }
@@ -3305,7 +3270,6 @@ export namespace Prisma {
    */
   export interface Prisma__GroupClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    creator<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     members<T extends Group$membersArgs<ExtArgs> = {}>(args?: Subset<T, Group$membersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$GroupMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     challenges<T extends Group$challengesArgs<ExtArgs> = {}>(args?: Subset<T, Group$challengesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DailyChallengePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     stats<T extends Group$statsArgs<ExtArgs> = {}>(args?: Subset<T, Group$statsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserGroupStatsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3341,8 +3305,9 @@ export namespace Prisma {
   interface GroupFieldRefs {
     readonly id: FieldRef<"Group", 'String'>
     readonly name: FieldRef<"Group", 'String'>
-    readonly invitedCode: FieldRef<"Group", 'String'>
-    readonly creatorId: FieldRef<"Group", 'String'>
+    readonly inviteCode: FieldRef<"Group", 'String'>
+    readonly createdBy: FieldRef<"Group", 'String'>
+    readonly createdAt: FieldRef<"Group", 'DateTime'>
   }
     
 
@@ -3597,10 +3562,6 @@ export namespace Prisma {
      */
     data: GroupCreateManyInput | GroupCreateManyInput[]
     skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: GroupIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3671,10 +3632,6 @@ export namespace Prisma {
      * Limit how many Groups to update.
      */
     limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: GroupIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3872,14 +3829,16 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     groupId: string | null
-    role: $Enums.GroupRole | null
+    role: $Enums.Role | null
+    joinedAt: Date | null
   }
 
   export type GroupMemberMaxAggregateOutputType = {
     id: string | null
     userId: string | null
     groupId: string | null
-    role: $Enums.GroupRole | null
+    role: $Enums.Role | null
+    joinedAt: Date | null
   }
 
   export type GroupMemberCountAggregateOutputType = {
@@ -3887,6 +3846,7 @@ export namespace Prisma {
     userId: number
     groupId: number
     role: number
+    joinedAt: number
     _all: number
   }
 
@@ -3896,6 +3856,7 @@ export namespace Prisma {
     userId?: true
     groupId?: true
     role?: true
+    joinedAt?: true
   }
 
   export type GroupMemberMaxAggregateInputType = {
@@ -3903,6 +3864,7 @@ export namespace Prisma {
     userId?: true
     groupId?: true
     role?: true
+    joinedAt?: true
   }
 
   export type GroupMemberCountAggregateInputType = {
@@ -3910,6 +3872,7 @@ export namespace Prisma {
     userId?: true
     groupId?: true
     role?: true
+    joinedAt?: true
     _all?: true
   }
 
@@ -3989,7 +3952,8 @@ export namespace Prisma {
     id: string
     userId: string
     groupId: string
-    role: $Enums.GroupRole
+    role: $Enums.Role
+    joinedAt: Date
     _count: GroupMemberCountAggregateOutputType | null
     _min: GroupMemberMinAggregateOutputType | null
     _max: GroupMemberMaxAggregateOutputType | null
@@ -4014,6 +3978,7 @@ export namespace Prisma {
     userId?: boolean
     groupId?: boolean
     role?: boolean
+    joinedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["groupMember"]>
@@ -4023,6 +3988,7 @@ export namespace Prisma {
     userId?: boolean
     groupId?: boolean
     role?: boolean
+    joinedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["groupMember"]>
@@ -4032,6 +3998,7 @@ export namespace Prisma {
     userId?: boolean
     groupId?: boolean
     role?: boolean
+    joinedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["groupMember"]>
@@ -4041,9 +4008,10 @@ export namespace Prisma {
     userId?: boolean
     groupId?: boolean
     role?: boolean
+    joinedAt?: boolean
   }
 
-  export type GroupMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groupId" | "role", ExtArgs["result"]["groupMember"]>
+  export type GroupMemberOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groupId" | "role" | "joinedAt", ExtArgs["result"]["groupMember"]>
   export type GroupMemberInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
@@ -4067,7 +4035,8 @@ export namespace Prisma {
       id: string
       userId: string
       groupId: string
-      role: $Enums.GroupRole
+      role: $Enums.Role
+      joinedAt: Date
     }, ExtArgs["result"]["groupMember"]>
     composites: {}
   }
@@ -4496,7 +4465,8 @@ export namespace Prisma {
     readonly id: FieldRef<"GroupMember", 'String'>
     readonly userId: FieldRef<"GroupMember", 'String'>
     readonly groupId: FieldRef<"GroupMember", 'String'>
-    readonly role: FieldRef<"GroupMember", 'GroupRole'>
+    readonly role: FieldRef<"GroupMember", 'Role'>
+    readonly joinedAt: FieldRef<"GroupMember", 'DateTime'>
   }
     
 
@@ -4929,31 +4899,34 @@ export namespace Prisma {
   export type DailyChallengeMinAggregateOutputType = {
     id: string | null
     groupId: string | null
+    createdBy: string | null
     date: Date | null
     problemLink: string | null
     status: $Enums.ChallengeStatus | null
-    isAutomated: boolean | null
-    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type DailyChallengeMaxAggregateOutputType = {
     id: string | null
     groupId: string | null
+    createdBy: string | null
     date: Date | null
     problemLink: string | null
     status: $Enums.ChallengeStatus | null
-    isAutomated: boolean | null
-    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type DailyChallengeCountAggregateOutputType = {
     id: number
     groupId: number
+    createdBy: number
     date: number
     problemLink: number
     status: number
-    isAutomated: number
-    createdById: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -4961,31 +4934,34 @@ export namespace Prisma {
   export type DailyChallengeMinAggregateInputType = {
     id?: true
     groupId?: true
+    createdBy?: true
     date?: true
     problemLink?: true
     status?: true
-    isAutomated?: true
-    createdById?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type DailyChallengeMaxAggregateInputType = {
     id?: true
     groupId?: true
+    createdBy?: true
     date?: true
     problemLink?: true
     status?: true
-    isAutomated?: true
-    createdById?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type DailyChallengeCountAggregateInputType = {
     id?: true
     groupId?: true
+    createdBy?: true
     date?: true
     problemLink?: true
     status?: true
-    isAutomated?: true
-    createdById?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -5064,11 +5040,12 @@ export namespace Prisma {
   export type DailyChallengeGroupByOutputType = {
     id: string
     groupId: string
+    createdBy: string | null
     date: Date
     problemLink: string | null
     status: $Enums.ChallengeStatus
-    isAutomated: boolean
-    createdById: string | null
+    createdAt: Date
+    updatedAt: Date
     _count: DailyChallengeCountAggregateOutputType | null
     _min: DailyChallengeMinAggregateOutputType | null
     _max: DailyChallengeMaxAggregateOutputType | null
@@ -5091,13 +5068,14 @@ export namespace Prisma {
   export type DailyChallengeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     groupId?: boolean
+    createdBy?: boolean
     date?: boolean
     problemLink?: boolean
     status?: boolean
-    isAutomated?: boolean
-    createdById?: boolean
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
+    createdAt?: boolean
+    updatedAt?: boolean
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
     submissions?: boolean | DailyChallenge$submissionsArgs<ExtArgs>
     _count?: boolean | DailyChallengeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["dailyChallenge"]>
@@ -5105,68 +5083,72 @@ export namespace Prisma {
   export type DailyChallengeSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     groupId?: boolean
+    createdBy?: boolean
     date?: boolean
     problemLink?: boolean
     status?: boolean
-    isAutomated?: boolean
-    createdById?: boolean
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
+    createdAt?: boolean
+    updatedAt?: boolean
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
   }, ExtArgs["result"]["dailyChallenge"]>
 
   export type DailyChallengeSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     groupId?: boolean
+    createdBy?: boolean
     date?: boolean
     problemLink?: boolean
     status?: boolean
-    isAutomated?: boolean
-    createdById?: boolean
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
+    createdAt?: boolean
+    updatedAt?: boolean
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
   }, ExtArgs["result"]["dailyChallenge"]>
 
   export type DailyChallengeSelectScalar = {
     id?: boolean
     groupId?: boolean
+    createdBy?: boolean
     date?: boolean
     problemLink?: boolean
     status?: boolean
-    isAutomated?: boolean
-    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type DailyChallengeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "date" | "problemLink" | "status" | "isAutomated" | "createdById", ExtArgs["result"]["dailyChallenge"]>
+  export type DailyChallengeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "groupId" | "createdBy" | "date" | "problemLink" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["dailyChallenge"]>
   export type DailyChallengeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
     submissions?: boolean | DailyChallenge$submissionsArgs<ExtArgs>
     _count?: boolean | DailyChallengeCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DailyChallengeIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
   }
   export type DailyChallengeIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    creator?: boolean | DailyChallenge$creatorArgs<ExtArgs>
   }
 
   export type $DailyChallengePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "DailyChallenge"
     objects: {
-      creator: Prisma.$UserPayload<ExtArgs> | null
       group: Prisma.$GroupPayload<ExtArgs>
+      creator: Prisma.$UserPayload<ExtArgs> | null
       submissions: Prisma.$SubmissionPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       groupId: string
+      createdBy: string | null
       date: Date
       problemLink: string | null
       status: $Enums.ChallengeStatus
-      isAutomated: boolean
-      createdById: string | null
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["dailyChallenge"]>
     composites: {}
   }
@@ -5561,8 +5543,8 @@ export namespace Prisma {
    */
   export interface Prisma__DailyChallengeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    creator<T extends DailyChallenge$creatorArgs<ExtArgs> = {}>(args?: Subset<T, DailyChallenge$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     group<T extends GroupDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GroupDefaultArgs<ExtArgs>>): Prisma__GroupClient<$Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    creator<T extends DailyChallenge$creatorArgs<ExtArgs> = {}>(args?: Subset<T, DailyChallenge$creatorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     submissions<T extends DailyChallenge$submissionsArgs<ExtArgs> = {}>(args?: Subset<T, DailyChallenge$submissionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5595,11 +5577,12 @@ export namespace Prisma {
   interface DailyChallengeFieldRefs {
     readonly id: FieldRef<"DailyChallenge", 'String'>
     readonly groupId: FieldRef<"DailyChallenge", 'String'>
+    readonly createdBy: FieldRef<"DailyChallenge", 'String'>
     readonly date: FieldRef<"DailyChallenge", 'DateTime'>
     readonly problemLink: FieldRef<"DailyChallenge", 'String'>
     readonly status: FieldRef<"DailyChallenge", 'ChallengeStatus'>
-    readonly isAutomated: FieldRef<"DailyChallenge", 'Boolean'>
-    readonly createdById: FieldRef<"DailyChallenge", 'String'>
+    readonly createdAt: FieldRef<"DailyChallenge", 'DateTime'>
+    readonly updatedAt: FieldRef<"DailyChallenge", 'DateTime'>
   }
     
 
@@ -6085,34 +6068,34 @@ export namespace Prisma {
   export type SubmissionMinAggregateOutputType = {
     id: string | null
     userId: string | null
-    challengeId: string | null
     groupId: string | null
+    challengeId: string | null
     solved: boolean | null
     solvedAt: Date | null
     timeTaken: number | null
-    solutionLink: string | null
+    createdAt: Date | null
   }
 
   export type SubmissionMaxAggregateOutputType = {
     id: string | null
     userId: string | null
-    challengeId: string | null
     groupId: string | null
+    challengeId: string | null
     solved: boolean | null
     solvedAt: Date | null
     timeTaken: number | null
-    solutionLink: string | null
+    createdAt: Date | null
   }
 
   export type SubmissionCountAggregateOutputType = {
     id: number
     userId: number
-    challengeId: number
     groupId: number
+    challengeId: number
     solved: number
     solvedAt: number
     timeTaken: number
-    solutionLink: number
+    createdAt: number
     _all: number
   }
 
@@ -6128,34 +6111,34 @@ export namespace Prisma {
   export type SubmissionMinAggregateInputType = {
     id?: true
     userId?: true
-    challengeId?: true
     groupId?: true
+    challengeId?: true
     solved?: true
     solvedAt?: true
     timeTaken?: true
-    solutionLink?: true
+    createdAt?: true
   }
 
   export type SubmissionMaxAggregateInputType = {
     id?: true
     userId?: true
-    challengeId?: true
     groupId?: true
+    challengeId?: true
     solved?: true
     solvedAt?: true
     timeTaken?: true
-    solutionLink?: true
+    createdAt?: true
   }
 
   export type SubmissionCountAggregateInputType = {
     id?: true
     userId?: true
-    challengeId?: true
     groupId?: true
+    challengeId?: true
     solved?: true
     solvedAt?: true
     timeTaken?: true
-    solutionLink?: true
+    createdAt?: true
     _all?: true
   }
 
@@ -6248,12 +6231,12 @@ export namespace Prisma {
   export type SubmissionGroupByOutputType = {
     id: string
     userId: string
-    challengeId: string
     groupId: string
+    challengeId: string
     solved: boolean
-    solvedAt: Date | null
+    solvedAt: Date
     timeTaken: number | null
-    solutionLink: string | null
+    createdAt: Date
     _count: SubmissionCountAggregateOutputType | null
     _avg: SubmissionAvgAggregateOutputType | null
     _sum: SubmissionSumAggregateOutputType | null
@@ -6278,89 +6261,89 @@ export namespace Prisma {
   export type SubmissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    challengeId?: boolean
     groupId?: boolean
+    challengeId?: boolean
     solved?: boolean
     solvedAt?: boolean
     timeTaken?: boolean
-    solutionLink?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["submission"]>
 
   export type SubmissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    challengeId?: boolean
     groupId?: boolean
+    challengeId?: boolean
     solved?: boolean
     solvedAt?: boolean
     timeTaken?: boolean
-    solutionLink?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["submission"]>
 
   export type SubmissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     userId?: boolean
-    challengeId?: boolean
     groupId?: boolean
+    challengeId?: boolean
     solved?: boolean
     solvedAt?: boolean
     timeTaken?: boolean
-    solutionLink?: boolean
+    createdAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["submission"]>
 
   export type SubmissionSelectScalar = {
     id?: boolean
     userId?: boolean
-    challengeId?: boolean
     groupId?: boolean
+    challengeId?: boolean
     solved?: boolean
     solvedAt?: boolean
     timeTaken?: boolean
-    solutionLink?: boolean
+    createdAt?: boolean
   }
 
-  export type SubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "challengeId" | "groupId" | "solved" | "solvedAt" | "timeTaken" | "solutionLink", ExtArgs["result"]["submission"]>
+  export type SubmissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groupId" | "challengeId" | "solved" | "solvedAt" | "timeTaken" | "createdAt", ExtArgs["result"]["submission"]>
   export type SubmissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }
   export type SubmissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }
   export type SubmissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
-    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
+    challenge?: boolean | DailyChallengeDefaultArgs<ExtArgs>
   }
 
   export type $SubmissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Submission"
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
-      challenge: Prisma.$DailyChallengePayload<ExtArgs>
       group: Prisma.$GroupPayload<ExtArgs>
+      challenge: Prisma.$DailyChallengePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       userId: string
-      challengeId: string
       groupId: string
+      challengeId: string
       solved: boolean
-      solvedAt: Date | null
+      solvedAt: Date
       timeTaken: number | null
-      solutionLink: string | null
+      createdAt: Date
     }, ExtArgs["result"]["submission"]>
     composites: {}
   }
@@ -6756,8 +6739,8 @@ export namespace Prisma {
   export interface Prisma__SubmissionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    challenge<T extends DailyChallengeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DailyChallengeDefaultArgs<ExtArgs>>): Prisma__DailyChallengeClient<$Result.GetResult<Prisma.$DailyChallengePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     group<T extends GroupDefaultArgs<ExtArgs> = {}>(args?: Subset<T, GroupDefaultArgs<ExtArgs>>): Prisma__GroupClient<$Result.GetResult<Prisma.$GroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    challenge<T extends DailyChallengeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DailyChallengeDefaultArgs<ExtArgs>>): Prisma__DailyChallengeClient<$Result.GetResult<Prisma.$DailyChallengePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6789,12 +6772,12 @@ export namespace Prisma {
   interface SubmissionFieldRefs {
     readonly id: FieldRef<"Submission", 'String'>
     readonly userId: FieldRef<"Submission", 'String'>
-    readonly challengeId: FieldRef<"Submission", 'String'>
     readonly groupId: FieldRef<"Submission", 'String'>
+    readonly challengeId: FieldRef<"Submission", 'String'>
     readonly solved: FieldRef<"Submission", 'Boolean'>
     readonly solvedAt: FieldRef<"Submission", 'DateTime'>
     readonly timeTaken: FieldRef<"Submission", 'Int'>
-    readonly solutionLink: FieldRef<"Submission", 'String'>
+    readonly createdAt: FieldRef<"Submission", 'DateTime'>
   }
     
 
@@ -7227,93 +7210,131 @@ export namespace Prisma {
   }
 
   export type UserGroupStatsAvgAggregateOutputType = {
+    currentStreak: number | null
+    longestStreak: number | null
     totalSolved: number | null
     last7DaysSolved: number | null
     last30DaysSolved: number | null
-    currentStreak: number | null
+    freezeCount: number | null
   }
 
   export type UserGroupStatsSumAggregateOutputType = {
+    currentStreak: number | null
+    longestStreak: number | null
     totalSolved: number | null
     last7DaysSolved: number | null
     last30DaysSolved: number | null
-    currentStreak: number | null
+    freezeCount: number | null
   }
 
   export type UserGroupStatsMinAggregateOutputType = {
     id: string | null
     userId: string | null
     groupId: string | null
+    currentStreak: number | null
+    longestStreak: number | null
     totalSolved: number | null
     last7DaysSolved: number | null
     last30DaysSolved: number | null
-    currentStreak: number | null
+    freezeCount: number | null
+    lastSolvedDate: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserGroupStatsMaxAggregateOutputType = {
     id: string | null
     userId: string | null
     groupId: string | null
+    currentStreak: number | null
+    longestStreak: number | null
     totalSolved: number | null
     last7DaysSolved: number | null
     last30DaysSolved: number | null
-    currentStreak: number | null
+    freezeCount: number | null
+    lastSolvedDate: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserGroupStatsCountAggregateOutputType = {
     id: number
     userId: number
     groupId: number
+    currentStreak: number
+    longestStreak: number
     totalSolved: number
     last7DaysSolved: number
     last30DaysSolved: number
-    currentStreak: number
+    freezeCount: number
+    lastSolvedDate: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
   export type UserGroupStatsAvgAggregateInputType = {
+    currentStreak?: true
+    longestStreak?: true
     totalSolved?: true
     last7DaysSolved?: true
     last30DaysSolved?: true
-    currentStreak?: true
+    freezeCount?: true
   }
 
   export type UserGroupStatsSumAggregateInputType = {
+    currentStreak?: true
+    longestStreak?: true
     totalSolved?: true
     last7DaysSolved?: true
     last30DaysSolved?: true
-    currentStreak?: true
+    freezeCount?: true
   }
 
   export type UserGroupStatsMinAggregateInputType = {
     id?: true
     userId?: true
     groupId?: true
+    currentStreak?: true
+    longestStreak?: true
     totalSolved?: true
     last7DaysSolved?: true
     last30DaysSolved?: true
-    currentStreak?: true
+    freezeCount?: true
+    lastSolvedDate?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserGroupStatsMaxAggregateInputType = {
     id?: true
     userId?: true
     groupId?: true
+    currentStreak?: true
+    longestStreak?: true
     totalSolved?: true
     last7DaysSolved?: true
     last30DaysSolved?: true
-    currentStreak?: true
+    freezeCount?: true
+    lastSolvedDate?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserGroupStatsCountAggregateInputType = {
     id?: true
     userId?: true
     groupId?: true
+    currentStreak?: true
+    longestStreak?: true
     totalSolved?: true
     last7DaysSolved?: true
     last30DaysSolved?: true
-    currentStreak?: true
+    freezeCount?: true
+    lastSolvedDate?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -7407,10 +7428,15 @@ export namespace Prisma {
     id: string
     userId: string
     groupId: string
+    currentStreak: number
+    longestStreak: number
     totalSolved: number
     last7DaysSolved: number
     last30DaysSolved: number
-    currentStreak: number
+    freezeCount: number
+    lastSolvedDate: Date | null
+    createdAt: Date
+    updatedAt: Date
     _count: UserGroupStatsCountAggregateOutputType | null
     _avg: UserGroupStatsAvgAggregateOutputType | null
     _sum: UserGroupStatsSumAggregateOutputType | null
@@ -7436,10 +7462,15 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     groupId?: boolean
+    currentStreak?: boolean
+    longestStreak?: boolean
     totalSolved?: boolean
     last7DaysSolved?: boolean
     last30DaysSolved?: boolean
-    currentStreak?: boolean
+    freezeCount?: boolean
+    lastSolvedDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userGroupStats"]>
@@ -7448,10 +7479,15 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     groupId?: boolean
+    currentStreak?: boolean
+    longestStreak?: boolean
     totalSolved?: boolean
     last7DaysSolved?: boolean
     last30DaysSolved?: boolean
-    currentStreak?: boolean
+    freezeCount?: boolean
+    lastSolvedDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userGroupStats"]>
@@ -7460,10 +7496,15 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     groupId?: boolean
+    currentStreak?: boolean
+    longestStreak?: boolean
     totalSolved?: boolean
     last7DaysSolved?: boolean
     last30DaysSolved?: boolean
-    currentStreak?: boolean
+    freezeCount?: boolean
+    lastSolvedDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["userGroupStats"]>
@@ -7472,13 +7513,18 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     groupId?: boolean
+    currentStreak?: boolean
+    longestStreak?: boolean
     totalSolved?: boolean
     last7DaysSolved?: boolean
     last30DaysSolved?: boolean
-    currentStreak?: boolean
+    freezeCount?: boolean
+    lastSolvedDate?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type UserGroupStatsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groupId" | "totalSolved" | "last7DaysSolved" | "last30DaysSolved" | "currentStreak", ExtArgs["result"]["userGroupStats"]>
+  export type UserGroupStatsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "groupId" | "currentStreak" | "longestStreak" | "totalSolved" | "last7DaysSolved" | "last30DaysSolved" | "freezeCount" | "lastSolvedDate" | "createdAt" | "updatedAt", ExtArgs["result"]["userGroupStats"]>
   export type UserGroupStatsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     group?: boolean | GroupDefaultArgs<ExtArgs>
@@ -7502,10 +7548,15 @@ export namespace Prisma {
       id: string
       userId: string
       groupId: string
+      currentStreak: number
+      longestStreak: number
       totalSolved: number
       last7DaysSolved: number
       last30DaysSolved: number
-      currentStreak: number
+      freezeCount: number
+      lastSolvedDate: Date | null
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["userGroupStats"]>
     composites: {}
   }
@@ -7934,10 +7985,15 @@ export namespace Prisma {
     readonly id: FieldRef<"UserGroupStats", 'String'>
     readonly userId: FieldRef<"UserGroupStats", 'String'>
     readonly groupId: FieldRef<"UserGroupStats", 'String'>
+    readonly currentStreak: FieldRef<"UserGroupStats", 'Int'>
+    readonly longestStreak: FieldRef<"UserGroupStats", 'Int'>
     readonly totalSolved: FieldRef<"UserGroupStats", 'Int'>
     readonly last7DaysSolved: FieldRef<"UserGroupStats", 'Int'>
     readonly last30DaysSolved: FieldRef<"UserGroupStats", 'Int'>
-    readonly currentStreak: FieldRef<"UserGroupStats", 'Int'>
+    readonly freezeCount: FieldRef<"UserGroupStats", 'Int'>
+    readonly lastSolvedDate: FieldRef<"UserGroupStats", 'DateTime'>
+    readonly createdAt: FieldRef<"UserGroupStats", 'DateTime'>
+    readonly updatedAt: FieldRef<"UserGroupStats", 'DateTime'>
   }
     
 
@@ -8385,8 +8441,9 @@ export namespace Prisma {
   export const GroupScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    invitedCode: 'invitedCode',
-    creatorId: 'creatorId'
+    inviteCode: 'inviteCode',
+    createdBy: 'createdBy',
+    createdAt: 'createdAt'
   };
 
   export type GroupScalarFieldEnum = (typeof GroupScalarFieldEnum)[keyof typeof GroupScalarFieldEnum]
@@ -8396,7 +8453,8 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     groupId: 'groupId',
-    role: 'role'
+    role: 'role',
+    joinedAt: 'joinedAt'
   };
 
   export type GroupMemberScalarFieldEnum = (typeof GroupMemberScalarFieldEnum)[keyof typeof GroupMemberScalarFieldEnum]
@@ -8405,11 +8463,12 @@ export namespace Prisma {
   export const DailyChallengeScalarFieldEnum: {
     id: 'id',
     groupId: 'groupId',
+    createdBy: 'createdBy',
     date: 'date',
     problemLink: 'problemLink',
     status: 'status',
-    isAutomated: 'isAutomated',
-    createdById: 'createdById'
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type DailyChallengeScalarFieldEnum = (typeof DailyChallengeScalarFieldEnum)[keyof typeof DailyChallengeScalarFieldEnum]
@@ -8418,12 +8477,12 @@ export namespace Prisma {
   export const SubmissionScalarFieldEnum: {
     id: 'id',
     userId: 'userId',
-    challengeId: 'challengeId',
     groupId: 'groupId',
+    challengeId: 'challengeId',
     solved: 'solved',
     solvedAt: 'solvedAt',
     timeTaken: 'timeTaken',
-    solutionLink: 'solutionLink'
+    createdAt: 'createdAt'
   };
 
   export type SubmissionScalarFieldEnum = (typeof SubmissionScalarFieldEnum)[keyof typeof SubmissionScalarFieldEnum]
@@ -8433,10 +8492,15 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     groupId: 'groupId',
+    currentStreak: 'currentStreak',
+    longestStreak: 'longestStreak',
     totalSolved: 'totalSolved',
     last7DaysSolved: 'last7DaysSolved',
     last30DaysSolved: 'last30DaysSolved',
-    currentStreak: 'currentStreak'
+    freezeCount: 'freezeCount',
+    lastSolvedDate: 'lastSolvedDate',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type UserGroupStatsScalarFieldEnum = (typeof UserGroupStatsScalarFieldEnum)[keyof typeof UserGroupStatsScalarFieldEnum]
@@ -8500,16 +8564,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'GroupRole'
+   * Reference to a field of type 'Role'
    */
-  export type EnumGroupRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupRole'>
+  export type EnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role'>
     
 
 
   /**
-   * Reference to a field of type 'GroupRole[]'
+   * Reference to a field of type 'Role[]'
    */
-  export type ListEnumGroupRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupRole[]'>
+  export type ListEnumRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Role[]'>
     
 
 
@@ -8578,7 +8642,6 @@ export namespace Prisma {
     submissions?: SubmissionListRelationFilter
     stats?: UserGroupStatsListRelationFilter
     createdChallenges?: DailyChallengeListRelationFilter
-    createdGroups?: GroupListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -8591,7 +8654,6 @@ export namespace Prisma {
     submissions?: SubmissionOrderByRelationAggregateInput
     stats?: UserGroupStatsOrderByRelationAggregateInput
     createdChallenges?: DailyChallengeOrderByRelationAggregateInput
-    createdGroups?: GroupOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -8607,7 +8669,6 @@ export namespace Prisma {
     submissions?: SubmissionListRelationFilter
     stats?: UserGroupStatsListRelationFilter
     createdChallenges?: DailyChallengeListRelationFilter
-    createdGroups?: GroupListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -8638,9 +8699,9 @@ export namespace Prisma {
     NOT?: GroupWhereInput | GroupWhereInput[]
     id?: StringFilter<"Group"> | string
     name?: StringFilter<"Group"> | string
-    invitedCode?: StringFilter<"Group"> | string
-    creatorId?: StringFilter<"Group"> | string
-    creator?: XOR<UserScalarRelationFilter, UserWhereInput>
+    inviteCode?: StringFilter<"Group"> | string
+    createdBy?: StringFilter<"Group"> | string
+    createdAt?: DateTimeFilter<"Group"> | Date | string
     members?: GroupMemberListRelationFilter
     challenges?: DailyChallengeListRelationFilter
     stats?: UserGroupStatsListRelationFilter
@@ -8650,9 +8711,9 @@ export namespace Prisma {
   export type GroupOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    invitedCode?: SortOrder
-    creatorId?: SortOrder
-    creator?: UserOrderByWithRelationInput
+    inviteCode?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
     members?: GroupMemberOrderByRelationAggregateInput
     challenges?: DailyChallengeOrderByRelationAggregateInput
     stats?: UserGroupStatsOrderByRelationAggregateInput
@@ -8661,24 +8722,25 @@ export namespace Prisma {
 
   export type GroupWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    invitedCode?: string
+    inviteCode?: string
     AND?: GroupWhereInput | GroupWhereInput[]
     OR?: GroupWhereInput[]
     NOT?: GroupWhereInput | GroupWhereInput[]
     name?: StringFilter<"Group"> | string
-    creatorId?: StringFilter<"Group"> | string
-    creator?: XOR<UserScalarRelationFilter, UserWhereInput>
+    createdBy?: StringFilter<"Group"> | string
+    createdAt?: DateTimeFilter<"Group"> | Date | string
     members?: GroupMemberListRelationFilter
     challenges?: DailyChallengeListRelationFilter
     stats?: UserGroupStatsListRelationFilter
     submissions?: SubmissionListRelationFilter
-  }, "id" | "invitedCode">
+  }, "id" | "inviteCode">
 
   export type GroupOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    invitedCode?: SortOrder
-    creatorId?: SortOrder
+    inviteCode?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
     _count?: GroupCountOrderByAggregateInput
     _max?: GroupMaxOrderByAggregateInput
     _min?: GroupMinOrderByAggregateInput
@@ -8690,8 +8752,9 @@ export namespace Prisma {
     NOT?: GroupScalarWhereWithAggregatesInput | GroupScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Group"> | string
     name?: StringWithAggregatesFilter<"Group"> | string
-    invitedCode?: StringWithAggregatesFilter<"Group"> | string
-    creatorId?: StringWithAggregatesFilter<"Group"> | string
+    inviteCode?: StringWithAggregatesFilter<"Group"> | string
+    createdBy?: StringWithAggregatesFilter<"Group"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Group"> | Date | string
   }
 
   export type GroupMemberWhereInput = {
@@ -8701,7 +8764,8 @@ export namespace Prisma {
     id?: StringFilter<"GroupMember"> | string
     userId?: StringFilter<"GroupMember"> | string
     groupId?: StringFilter<"GroupMember"> | string
-    role?: EnumGroupRoleFilter<"GroupMember"> | $Enums.GroupRole
+    role?: EnumRoleFilter<"GroupMember"> | $Enums.Role
+    joinedAt?: DateTimeFilter<"GroupMember"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
   }
@@ -8711,6 +8775,7 @@ export namespace Prisma {
     userId?: SortOrder
     groupId?: SortOrder
     role?: SortOrder
+    joinedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     group?: GroupOrderByWithRelationInput
   }
@@ -8723,7 +8788,8 @@ export namespace Prisma {
     NOT?: GroupMemberWhereInput | GroupMemberWhereInput[]
     userId?: StringFilter<"GroupMember"> | string
     groupId?: StringFilter<"GroupMember"> | string
-    role?: EnumGroupRoleFilter<"GroupMember"> | $Enums.GroupRole
+    role?: EnumRoleFilter<"GroupMember"> | $Enums.Role
+    joinedAt?: DateTimeFilter<"GroupMember"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
   }, "id" | "userId_groupId">
@@ -8733,6 +8799,7 @@ export namespace Prisma {
     userId?: SortOrder
     groupId?: SortOrder
     role?: SortOrder
+    joinedAt?: SortOrder
     _count?: GroupMemberCountOrderByAggregateInput
     _max?: GroupMemberMaxOrderByAggregateInput
     _min?: GroupMemberMinOrderByAggregateInput
@@ -8745,7 +8812,8 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"GroupMember"> | string
     userId?: StringWithAggregatesFilter<"GroupMember"> | string
     groupId?: StringWithAggregatesFilter<"GroupMember"> | string
-    role?: EnumGroupRoleWithAggregatesFilter<"GroupMember"> | $Enums.GroupRole
+    role?: EnumRoleWithAggregatesFilter<"GroupMember"> | $Enums.Role
+    joinedAt?: DateTimeWithAggregatesFilter<"GroupMember"> | Date | string
   }
 
   export type DailyChallengeWhereInput = {
@@ -8754,26 +8822,28 @@ export namespace Prisma {
     NOT?: DailyChallengeWhereInput | DailyChallengeWhereInput[]
     id?: StringFilter<"DailyChallenge"> | string
     groupId?: StringFilter<"DailyChallenge"> | string
+    createdBy?: StringNullableFilter<"DailyChallenge"> | string | null
     date?: DateTimeFilter<"DailyChallenge"> | Date | string
     problemLink?: StringNullableFilter<"DailyChallenge"> | string | null
     status?: EnumChallengeStatusFilter<"DailyChallenge"> | $Enums.ChallengeStatus
-    isAutomated?: BoolFilter<"DailyChallenge"> | boolean
-    createdById?: StringNullableFilter<"DailyChallenge"> | string | null
-    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    createdAt?: DateTimeFilter<"DailyChallenge"> | Date | string
+    updatedAt?: DateTimeFilter<"DailyChallenge"> | Date | string
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     submissions?: SubmissionListRelationFilter
   }
 
   export type DailyChallengeOrderByWithRelationInput = {
     id?: SortOrder
     groupId?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
     date?: SortOrder
     problemLink?: SortOrderInput | SortOrder
     status?: SortOrder
-    isAutomated?: SortOrder
-    createdById?: SortOrderInput | SortOrder
-    creator?: UserOrderByWithRelationInput
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     group?: GroupOrderByWithRelationInput
+    creator?: UserOrderByWithRelationInput
     submissions?: SubmissionOrderByRelationAggregateInput
   }
 
@@ -8784,24 +8854,26 @@ export namespace Prisma {
     OR?: DailyChallengeWhereInput[]
     NOT?: DailyChallengeWhereInput | DailyChallengeWhereInput[]
     groupId?: StringFilter<"DailyChallenge"> | string
+    createdBy?: StringNullableFilter<"DailyChallenge"> | string | null
     date?: DateTimeFilter<"DailyChallenge"> | Date | string
     problemLink?: StringNullableFilter<"DailyChallenge"> | string | null
     status?: EnumChallengeStatusFilter<"DailyChallenge"> | $Enums.ChallengeStatus
-    isAutomated?: BoolFilter<"DailyChallenge"> | boolean
-    createdById?: StringNullableFilter<"DailyChallenge"> | string | null
-    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    createdAt?: DateTimeFilter<"DailyChallenge"> | Date | string
+    updatedAt?: DateTimeFilter<"DailyChallenge"> | Date | string
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
+    creator?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
     submissions?: SubmissionListRelationFilter
   }, "id" | "groupId_date">
 
   export type DailyChallengeOrderByWithAggregationInput = {
     id?: SortOrder
     groupId?: SortOrder
+    createdBy?: SortOrderInput | SortOrder
     date?: SortOrder
     problemLink?: SortOrderInput | SortOrder
     status?: SortOrder
-    isAutomated?: SortOrder
-    createdById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: DailyChallengeCountOrderByAggregateInput
     _max?: DailyChallengeMaxOrderByAggregateInput
     _min?: DailyChallengeMinOrderByAggregateInput
@@ -8813,11 +8885,12 @@ export namespace Prisma {
     NOT?: DailyChallengeScalarWhereWithAggregatesInput | DailyChallengeScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"DailyChallenge"> | string
     groupId?: StringWithAggregatesFilter<"DailyChallenge"> | string
+    createdBy?: StringNullableWithAggregatesFilter<"DailyChallenge"> | string | null
     date?: DateTimeWithAggregatesFilter<"DailyChallenge"> | Date | string
     problemLink?: StringNullableWithAggregatesFilter<"DailyChallenge"> | string | null
     status?: EnumChallengeStatusWithAggregatesFilter<"DailyChallenge"> | $Enums.ChallengeStatus
-    isAutomated?: BoolWithAggregatesFilter<"DailyChallenge"> | boolean
-    createdById?: StringNullableWithAggregatesFilter<"DailyChallenge"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DailyChallenge"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DailyChallenge"> | Date | string
   }
 
   export type SubmissionWhereInput = {
@@ -8826,29 +8899,29 @@ export namespace Prisma {
     NOT?: SubmissionWhereInput | SubmissionWhereInput[]
     id?: StringFilter<"Submission"> | string
     userId?: StringFilter<"Submission"> | string
-    challengeId?: StringFilter<"Submission"> | string
     groupId?: StringFilter<"Submission"> | string
+    challengeId?: StringFilter<"Submission"> | string
     solved?: BoolFilter<"Submission"> | boolean
-    solvedAt?: DateTimeNullableFilter<"Submission"> | Date | string | null
+    solvedAt?: DateTimeFilter<"Submission"> | Date | string
     timeTaken?: IntNullableFilter<"Submission"> | number | null
-    solutionLink?: StringNullableFilter<"Submission"> | string | null
+    createdAt?: DateTimeFilter<"Submission"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    challenge?: XOR<DailyChallengeScalarRelationFilter, DailyChallengeWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
+    challenge?: XOR<DailyChallengeScalarRelationFilter, DailyChallengeWhereInput>
   }
 
   export type SubmissionOrderByWithRelationInput = {
     id?: SortOrder
     userId?: SortOrder
-    challengeId?: SortOrder
     groupId?: SortOrder
+    challengeId?: SortOrder
     solved?: SortOrder
-    solvedAt?: SortOrderInput | SortOrder
+    solvedAt?: SortOrder
     timeTaken?: SortOrderInput | SortOrder
-    solutionLink?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     user?: UserOrderByWithRelationInput
-    challenge?: DailyChallengeOrderByWithRelationInput
     group?: GroupOrderByWithRelationInput
+    challenge?: DailyChallengeOrderByWithRelationInput
   }
 
   export type SubmissionWhereUniqueInput = Prisma.AtLeast<{
@@ -8858,26 +8931,26 @@ export namespace Prisma {
     OR?: SubmissionWhereInput[]
     NOT?: SubmissionWhereInput | SubmissionWhereInput[]
     userId?: StringFilter<"Submission"> | string
-    challengeId?: StringFilter<"Submission"> | string
     groupId?: StringFilter<"Submission"> | string
+    challengeId?: StringFilter<"Submission"> | string
     solved?: BoolFilter<"Submission"> | boolean
-    solvedAt?: DateTimeNullableFilter<"Submission"> | Date | string | null
+    solvedAt?: DateTimeFilter<"Submission"> | Date | string
     timeTaken?: IntNullableFilter<"Submission"> | number | null
-    solutionLink?: StringNullableFilter<"Submission"> | string | null
+    createdAt?: DateTimeFilter<"Submission"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-    challenge?: XOR<DailyChallengeScalarRelationFilter, DailyChallengeWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
+    challenge?: XOR<DailyChallengeScalarRelationFilter, DailyChallengeWhereInput>
   }, "id" | "userId_challengeId">
 
   export type SubmissionOrderByWithAggregationInput = {
     id?: SortOrder
     userId?: SortOrder
-    challengeId?: SortOrder
     groupId?: SortOrder
+    challengeId?: SortOrder
     solved?: SortOrder
-    solvedAt?: SortOrderInput | SortOrder
+    solvedAt?: SortOrder
     timeTaken?: SortOrderInput | SortOrder
-    solutionLink?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
     _count?: SubmissionCountOrderByAggregateInput
     _avg?: SubmissionAvgOrderByAggregateInput
     _max?: SubmissionMaxOrderByAggregateInput
@@ -8891,12 +8964,12 @@ export namespace Prisma {
     NOT?: SubmissionScalarWhereWithAggregatesInput | SubmissionScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Submission"> | string
     userId?: StringWithAggregatesFilter<"Submission"> | string
-    challengeId?: StringWithAggregatesFilter<"Submission"> | string
     groupId?: StringWithAggregatesFilter<"Submission"> | string
+    challengeId?: StringWithAggregatesFilter<"Submission"> | string
     solved?: BoolWithAggregatesFilter<"Submission"> | boolean
-    solvedAt?: DateTimeNullableWithAggregatesFilter<"Submission"> | Date | string | null
+    solvedAt?: DateTimeWithAggregatesFilter<"Submission"> | Date | string
     timeTaken?: IntNullableWithAggregatesFilter<"Submission"> | number | null
-    solutionLink?: StringNullableWithAggregatesFilter<"Submission"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"Submission"> | Date | string
   }
 
   export type UserGroupStatsWhereInput = {
@@ -8906,10 +8979,15 @@ export namespace Prisma {
     id?: StringFilter<"UserGroupStats"> | string
     userId?: StringFilter<"UserGroupStats"> | string
     groupId?: StringFilter<"UserGroupStats"> | string
+    currentStreak?: IntFilter<"UserGroupStats"> | number
+    longestStreak?: IntFilter<"UserGroupStats"> | number
     totalSolved?: IntFilter<"UserGroupStats"> | number
     last7DaysSolved?: IntFilter<"UserGroupStats"> | number
     last30DaysSolved?: IntFilter<"UserGroupStats"> | number
-    currentStreak?: IntFilter<"UserGroupStats"> | number
+    freezeCount?: IntFilter<"UserGroupStats"> | number
+    lastSolvedDate?: DateTimeNullableFilter<"UserGroupStats"> | Date | string | null
+    createdAt?: DateTimeFilter<"UserGroupStats"> | Date | string
+    updatedAt?: DateTimeFilter<"UserGroupStats"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
   }
@@ -8918,10 +8996,15 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     groupId?: SortOrder
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
+    lastSolvedDate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     group?: GroupOrderByWithRelationInput
   }
@@ -8934,10 +9017,15 @@ export namespace Prisma {
     NOT?: UserGroupStatsWhereInput | UserGroupStatsWhereInput[]
     userId?: StringFilter<"UserGroupStats"> | string
     groupId?: StringFilter<"UserGroupStats"> | string
+    currentStreak?: IntFilter<"UserGroupStats"> | number
+    longestStreak?: IntFilter<"UserGroupStats"> | number
     totalSolved?: IntFilter<"UserGroupStats"> | number
     last7DaysSolved?: IntFilter<"UserGroupStats"> | number
     last30DaysSolved?: IntFilter<"UserGroupStats"> | number
-    currentStreak?: IntFilter<"UserGroupStats"> | number
+    freezeCount?: IntFilter<"UserGroupStats"> | number
+    lastSolvedDate?: DateTimeNullableFilter<"UserGroupStats"> | Date | string | null
+    createdAt?: DateTimeFilter<"UserGroupStats"> | Date | string
+    updatedAt?: DateTimeFilter<"UserGroupStats"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     group?: XOR<GroupScalarRelationFilter, GroupWhereInput>
   }, "id" | "userId_groupId">
@@ -8946,10 +9034,15 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     groupId?: SortOrder
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
+    lastSolvedDate?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: UserGroupStatsCountOrderByAggregateInput
     _avg?: UserGroupStatsAvgOrderByAggregateInput
     _max?: UserGroupStatsMaxOrderByAggregateInput
@@ -8964,10 +9057,15 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"UserGroupStats"> | string
     userId?: StringWithAggregatesFilter<"UserGroupStats"> | string
     groupId?: StringWithAggregatesFilter<"UserGroupStats"> | string
+    currentStreak?: IntWithAggregatesFilter<"UserGroupStats"> | number
+    longestStreak?: IntWithAggregatesFilter<"UserGroupStats"> | number
     totalSolved?: IntWithAggregatesFilter<"UserGroupStats"> | number
     last7DaysSolved?: IntWithAggregatesFilter<"UserGroupStats"> | number
     last30DaysSolved?: IntWithAggregatesFilter<"UserGroupStats"> | number
-    currentStreak?: IntWithAggregatesFilter<"UserGroupStats"> | number
+    freezeCount?: IntWithAggregatesFilter<"UserGroupStats"> | number
+    lastSolvedDate?: DateTimeNullableWithAggregatesFilter<"UserGroupStats"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"UserGroupStats"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"UserGroupStats"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -8980,7 +9078,6 @@ export namespace Prisma {
     submissions?: SubmissionCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -8993,7 +9090,6 @@ export namespace Prisma {
     submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeUncheckedCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupUncheckedCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUpdateInput = {
@@ -9006,7 +9102,6 @@ export namespace Prisma {
     submissions?: SubmissionUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -9019,7 +9114,6 @@ export namespace Prisma {
     submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUncheckedUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -9049,8 +9143,9 @@ export namespace Prisma {
   export type GroupCreateInput = {
     id?: string
     name: string
-    invitedCode: string
-    creator: UserCreateNestedOneWithoutCreatedGroupsInput
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
@@ -9060,8 +9155,9 @@ export namespace Prisma {
   export type GroupUncheckedCreateInput = {
     id?: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeUncheckedCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
@@ -9071,8 +9167,9 @@ export namespace Prisma {
   export type GroupUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creator?: UserUpdateOneRequiredWithoutCreatedGroupsNestedInput
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: GroupMemberUpdateManyWithoutGroupNestedInput
     challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
     stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
@@ -9082,8 +9179,9 @@ export namespace Prisma {
   export type GroupUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
     challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
@@ -9093,26 +9191,31 @@ export namespace Prisma {
   export type GroupCreateManyInput = {
     id?: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
   }
 
   export type GroupUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberCreateInput = {
     id?: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
     user: UserCreateNestedOneWithoutMembershipsInput
     group: GroupCreateNestedOneWithoutMembersInput
   }
@@ -9121,12 +9224,14 @@ export namespace Prisma {
     id?: string
     userId: string
     groupId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type GroupMemberUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
     group?: GroupUpdateOneRequiredWithoutMembersNestedInput
   }
@@ -9135,26 +9240,30 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberCreateManyInput = {
     id?: string
     userId: string
     groupId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type GroupMemberUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DailyChallengeCreateInput = {
@@ -9162,20 +9271,22 @@ export namespace Prisma {
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    creator?: UserCreateNestedOneWithoutCreatedChallengesInput
+    createdAt?: Date | string
+    updatedAt?: Date | string
     group: GroupCreateNestedOneWithoutChallengesInput
+    creator?: UserCreateNestedOneWithoutCreatedChallengesInput
     submissions?: SubmissionCreateNestedManyWithoutChallengeInput
   }
 
   export type DailyChallengeUncheckedCreateInput = {
     id?: string
     groupId: string
+    createdBy?: string | null
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     submissions?: SubmissionUncheckedCreateNestedManyWithoutChallengeInput
   }
 
@@ -9184,31 +9295,34 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    creator?: UserUpdateOneWithoutCreatedChallengesNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutChallengesNestedInput
+    creator?: UserUpdateOneWithoutCreatedChallengesNestedInput
     submissions?: SubmissionUpdateManyWithoutChallengeNestedInput
   }
 
   export type DailyChallengeUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     submissions?: SubmissionUncheckedUpdateManyWithoutChallengeNestedInput
   }
 
   export type DailyChallengeCreateManyInput = {
     id?: string
     groupId: string
+    createdBy?: string | null
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type DailyChallengeUpdateManyMutationInput = {
@@ -9216,99 +9330,106 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DailyChallengeUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionCreateInput = {
     id?: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
     user: UserCreateNestedOneWithoutSubmissionsInput
-    challenge: DailyChallengeCreateNestedOneWithoutSubmissionsInput
     group: GroupCreateNestedOneWithoutSubmissionsInput
+    challenge: DailyChallengeCreateNestedOneWithoutSubmissionsInput
   }
 
   export type SubmissionUncheckedCreateInput = {
     id?: string
     userId: string
-    challengeId: string
     groupId: string
+    challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSubmissionsNestedInput
-    challenge?: DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
     group?: GroupUpdateOneRequiredWithoutSubmissionsNestedInput
+    challenge?: DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   }
 
   export type SubmissionUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    challengeId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionCreateManyInput = {
     id?: string
     userId: string
-    challengeId: string
     groupId: string
+    challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    challengeId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsCreateInput = {
     id?: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutStatsInput
     group: GroupCreateNestedOneWithoutStatsInput
   }
@@ -9317,18 +9438,28 @@ export namespace Prisma {
     id?: string
     userId: string
     groupId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserGroupStatsUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutStatsNestedInput
     group?: GroupUpdateOneRequiredWithoutStatsNestedInput
   }
@@ -9337,38 +9468,58 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsCreateManyInput = {
     id?: string
     userId: string
     groupId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserGroupStatsUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -9421,12 +9572,6 @@ export namespace Prisma {
     none?: DailyChallengeWhereInput
   }
 
-  export type GroupListRelationFilter = {
-    every?: GroupWhereInput
-    some?: GroupWhereInput
-    none?: GroupWhereInput
-  }
-
   export type GroupMemberOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -9440,10 +9585,6 @@ export namespace Prisma {
   }
 
   export type DailyChallengeOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type GroupOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -9503,37 +9644,40 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type UserScalarRelationFilter = {
-    is?: UserWhereInput
-    isNot?: UserWhereInput
-  }
-
   export type GroupCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    invitedCode?: SortOrder
-    creatorId?: SortOrder
+    inviteCode?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type GroupMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    invitedCode?: SortOrder
-    creatorId?: SortOrder
+    inviteCode?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type GroupMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    invitedCode?: SortOrder
-    creatorId?: SortOrder
+    inviteCode?: SortOrder
+    createdBy?: SortOrder
+    createdAt?: SortOrder
   }
 
-  export type EnumGroupRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.GroupRole | EnumGroupRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumGroupRoleFilter<$PrismaModel> | $Enums.GroupRole
+  export type EnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
+  }
+
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
   }
 
   export type GroupScalarRelationFilter = {
@@ -9551,6 +9695,7 @@ export namespace Prisma {
     userId?: SortOrder
     groupId?: SortOrder
     role?: SortOrder
+    joinedAt?: SortOrder
   }
 
   export type GroupMemberMaxOrderByAggregateInput = {
@@ -9558,6 +9703,7 @@ export namespace Prisma {
     userId?: SortOrder
     groupId?: SortOrder
     role?: SortOrder
+    joinedAt?: SortOrder
   }
 
   export type GroupMemberMinOrderByAggregateInput = {
@@ -9565,16 +9711,17 @@ export namespace Prisma {
     userId?: SortOrder
     groupId?: SortOrder
     role?: SortOrder
+    joinedAt?: SortOrder
   }
 
-  export type EnumGroupRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.GroupRole | EnumGroupRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumGroupRoleWithAggregatesFilter<$PrismaModel> | $Enums.GroupRole
+  export type EnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumGroupRoleFilter<$PrismaModel>
-    _max?: NestedEnumGroupRoleFilter<$PrismaModel>
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type StringNullableFilter<$PrismaModel = never> = {
@@ -9599,11 +9746,6 @@ export namespace Prisma {
     not?: NestedEnumChallengeStatusFilter<$PrismaModel> | $Enums.ChallengeStatus
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type UserNullableScalarRelationFilter = {
     is?: UserWhereInput | null
     isNot?: UserWhereInput | null
@@ -9622,31 +9764,34 @@ export namespace Prisma {
   export type DailyChallengeCountOrderByAggregateInput = {
     id?: SortOrder
     groupId?: SortOrder
+    createdBy?: SortOrder
     date?: SortOrder
     problemLink?: SortOrder
     status?: SortOrder
-    isAutomated?: SortOrder
-    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type DailyChallengeMaxOrderByAggregateInput = {
     id?: SortOrder
     groupId?: SortOrder
+    createdBy?: SortOrder
     date?: SortOrder
     problemLink?: SortOrder
     status?: SortOrder
-    isAutomated?: SortOrder
-    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type DailyChallengeMinOrderByAggregateInput = {
     id?: SortOrder
     groupId?: SortOrder
+    createdBy?: SortOrder
     date?: SortOrder
     problemLink?: SortOrder
     status?: SortOrder
-    isAutomated?: SortOrder
-    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -9677,23 +9822,9 @@ export namespace Prisma {
     _max?: NestedEnumChallengeStatusFilter<$PrismaModel>
   }
 
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+  export type BoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type DateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type IntNullableFilter<$PrismaModel = never> = {
@@ -9720,12 +9851,12 @@ export namespace Prisma {
   export type SubmissionCountOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    challengeId?: SortOrder
     groupId?: SortOrder
+    challengeId?: SortOrder
     solved?: SortOrder
     solvedAt?: SortOrder
     timeTaken?: SortOrder
-    solutionLink?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type SubmissionAvgOrderByAggregateInput = {
@@ -9735,41 +9866,35 @@ export namespace Prisma {
   export type SubmissionMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    challengeId?: SortOrder
     groupId?: SortOrder
+    challengeId?: SortOrder
     solved?: SortOrder
     solvedAt?: SortOrder
     timeTaken?: SortOrder
-    solutionLink?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type SubmissionMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
-    challengeId?: SortOrder
     groupId?: SortOrder
+    challengeId?: SortOrder
     solved?: SortOrder
     solvedAt?: SortOrder
     timeTaken?: SortOrder
-    solutionLink?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type SubmissionSumOrderByAggregateInput = {
     timeTaken?: SortOrder
   }
 
-  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -9799,6 +9924,17 @@ export namespace Prisma {
     not?: NestedIntFilter<$PrismaModel> | number
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type UserGroupStatsUserIdGroupIdCompoundUniqueInput = {
     userId: string
     groupId: string
@@ -9808,44 +9944,63 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     groupId?: SortOrder
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
+    lastSolvedDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserGroupStatsAvgOrderByAggregateInput = {
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
   }
 
   export type UserGroupStatsMaxOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     groupId?: SortOrder
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
+    lastSolvedDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserGroupStatsMinOrderByAggregateInput = {
     id?: SortOrder
     userId?: SortOrder
     groupId?: SortOrder
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
+    lastSolvedDate?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserGroupStatsSumOrderByAggregateInput = {
+    currentStreak?: SortOrder
+    longestStreak?: SortOrder
     totalSolved?: SortOrder
     last7DaysSolved?: SortOrder
     last30DaysSolved?: SortOrder
-    currentStreak?: SortOrder
+    freezeCount?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -9862,6 +10017,20 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type GroupMemberCreateNestedManyWithoutUserInput = {
@@ -9892,13 +10061,6 @@ export namespace Prisma {
     connect?: DailyChallengeWhereUniqueInput | DailyChallengeWhereUniqueInput[]
   }
 
-  export type GroupCreateNestedManyWithoutCreatorInput = {
-    create?: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput> | GroupCreateWithoutCreatorInput[] | GroupUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: GroupCreateOrConnectWithoutCreatorInput | GroupCreateOrConnectWithoutCreatorInput[]
-    createMany?: GroupCreateManyCreatorInputEnvelope
-    connect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-  }
-
   export type GroupMemberUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<GroupMemberCreateWithoutUserInput, GroupMemberUncheckedCreateWithoutUserInput> | GroupMemberCreateWithoutUserInput[] | GroupMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: GroupMemberCreateOrConnectWithoutUserInput | GroupMemberCreateOrConnectWithoutUserInput[]
@@ -9925,13 +10087,6 @@ export namespace Prisma {
     connectOrCreate?: DailyChallengeCreateOrConnectWithoutCreatorInput | DailyChallengeCreateOrConnectWithoutCreatorInput[]
     createMany?: DailyChallengeCreateManyCreatorInputEnvelope
     connect?: DailyChallengeWhereUniqueInput | DailyChallengeWhereUniqueInput[]
-  }
-
-  export type GroupUncheckedCreateNestedManyWithoutCreatorInput = {
-    create?: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput> | GroupCreateWithoutCreatorInput[] | GroupUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: GroupCreateOrConnectWithoutCreatorInput | GroupCreateOrConnectWithoutCreatorInput[]
-    createMany?: GroupCreateManyCreatorInputEnvelope
-    connect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -9998,20 +10153,6 @@ export namespace Prisma {
     deleteMany?: DailyChallengeScalarWhereInput | DailyChallengeScalarWhereInput[]
   }
 
-  export type GroupUpdateManyWithoutCreatorNestedInput = {
-    create?: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput> | GroupCreateWithoutCreatorInput[] | GroupUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: GroupCreateOrConnectWithoutCreatorInput | GroupCreateOrConnectWithoutCreatorInput[]
-    upsert?: GroupUpsertWithWhereUniqueWithoutCreatorInput | GroupUpsertWithWhereUniqueWithoutCreatorInput[]
-    createMany?: GroupCreateManyCreatorInputEnvelope
-    set?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    disconnect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    delete?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    connect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    update?: GroupUpdateWithWhereUniqueWithoutCreatorInput | GroupUpdateWithWhereUniqueWithoutCreatorInput[]
-    updateMany?: GroupUpdateManyWithWhereWithoutCreatorInput | GroupUpdateManyWithWhereWithoutCreatorInput[]
-    deleteMany?: GroupScalarWhereInput | GroupScalarWhereInput[]
-  }
-
   export type GroupMemberUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<GroupMemberCreateWithoutUserInput, GroupMemberUncheckedCreateWithoutUserInput> | GroupMemberCreateWithoutUserInput[] | GroupMemberUncheckedCreateWithoutUserInput[]
     connectOrCreate?: GroupMemberCreateOrConnectWithoutUserInput | GroupMemberCreateOrConnectWithoutUserInput[]
@@ -10068,26 +10209,6 @@ export namespace Prisma {
     deleteMany?: DailyChallengeScalarWhereInput | DailyChallengeScalarWhereInput[]
   }
 
-  export type GroupUncheckedUpdateManyWithoutCreatorNestedInput = {
-    create?: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput> | GroupCreateWithoutCreatorInput[] | GroupUncheckedCreateWithoutCreatorInput[]
-    connectOrCreate?: GroupCreateOrConnectWithoutCreatorInput | GroupCreateOrConnectWithoutCreatorInput[]
-    upsert?: GroupUpsertWithWhereUniqueWithoutCreatorInput | GroupUpsertWithWhereUniqueWithoutCreatorInput[]
-    createMany?: GroupCreateManyCreatorInputEnvelope
-    set?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    disconnect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    delete?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    connect?: GroupWhereUniqueInput | GroupWhereUniqueInput[]
-    update?: GroupUpdateWithWhereUniqueWithoutCreatorInput | GroupUpdateWithWhereUniqueWithoutCreatorInput[]
-    updateMany?: GroupUpdateManyWithWhereWithoutCreatorInput | GroupUpdateManyWithWhereWithoutCreatorInput[]
-    deleteMany?: GroupScalarWhereInput | GroupScalarWhereInput[]
-  }
-
-  export type UserCreateNestedOneWithoutCreatedGroupsInput = {
-    create?: XOR<UserCreateWithoutCreatedGroupsInput, UserUncheckedCreateWithoutCreatedGroupsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutCreatedGroupsInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type GroupMemberCreateNestedManyWithoutGroupInput = {
     create?: XOR<GroupMemberCreateWithoutGroupInput, GroupMemberUncheckedCreateWithoutGroupInput> | GroupMemberCreateWithoutGroupInput[] | GroupMemberUncheckedCreateWithoutGroupInput[]
     connectOrCreate?: GroupMemberCreateOrConnectWithoutGroupInput | GroupMemberCreateOrConnectWithoutGroupInput[]
@@ -10142,14 +10263,6 @@ export namespace Prisma {
     connectOrCreate?: SubmissionCreateOrConnectWithoutGroupInput | SubmissionCreateOrConnectWithoutGroupInput[]
     createMany?: SubmissionCreateManyGroupInputEnvelope
     connect?: SubmissionWhereUniqueInput | SubmissionWhereUniqueInput[]
-  }
-
-  export type UserUpdateOneRequiredWithoutCreatedGroupsNestedInput = {
-    create?: XOR<UserCreateWithoutCreatedGroupsInput, UserUncheckedCreateWithoutCreatedGroupsInput>
-    connectOrCreate?: UserCreateOrConnectWithoutCreatedGroupsInput
-    upsert?: UserUpsertWithoutCreatedGroupsInput
-    connect?: UserWhereUniqueInput
-    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreatedGroupsInput, UserUpdateWithoutCreatedGroupsInput>, UserUncheckedUpdateWithoutCreatedGroupsInput>
   }
 
   export type GroupMemberUpdateManyWithoutGroupNestedInput = {
@@ -10276,8 +10389,8 @@ export namespace Prisma {
     connect?: GroupWhereUniqueInput
   }
 
-  export type EnumGroupRoleFieldUpdateOperationsInput = {
-    set?: $Enums.GroupRole
+  export type EnumRoleFieldUpdateOperationsInput = {
+    set?: $Enums.Role
   }
 
   export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
@@ -10296,16 +10409,16 @@ export namespace Prisma {
     update?: XOR<XOR<GroupUpdateToOneWithWhereWithoutMembersInput, GroupUpdateWithoutMembersInput>, GroupUncheckedUpdateWithoutMembersInput>
   }
 
-  export type UserCreateNestedOneWithoutCreatedChallengesInput = {
-    create?: XOR<UserCreateWithoutCreatedChallengesInput, UserUncheckedCreateWithoutCreatedChallengesInput>
-    connectOrCreate?: UserCreateOrConnectWithoutCreatedChallengesInput
-    connect?: UserWhereUniqueInput
-  }
-
   export type GroupCreateNestedOneWithoutChallengesInput = {
     create?: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
     connectOrCreate?: GroupCreateOrConnectWithoutChallengesInput
     connect?: GroupWhereUniqueInput
+  }
+
+  export type UserCreateNestedOneWithoutCreatedChallengesInput = {
+    create?: XOR<UserCreateWithoutCreatedChallengesInput, UserUncheckedCreateWithoutCreatedChallengesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCreatedChallengesInput
+    connect?: UserWhereUniqueInput
   }
 
   export type SubmissionCreateNestedManyWithoutChallengeInput = {
@@ -10330,8 +10443,12 @@ export namespace Prisma {
     set?: $Enums.ChallengeStatus
   }
 
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
+  export type GroupUpdateOneRequiredWithoutChallengesNestedInput = {
+    create?: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
+    connectOrCreate?: GroupCreateOrConnectWithoutChallengesInput
+    upsert?: GroupUpsertWithoutChallengesInput
+    connect?: GroupWhereUniqueInput
+    update?: XOR<XOR<GroupUpdateToOneWithWhereWithoutChallengesInput, GroupUpdateWithoutChallengesInput>, GroupUncheckedUpdateWithoutChallengesInput>
   }
 
   export type UserUpdateOneWithoutCreatedChallengesNestedInput = {
@@ -10342,14 +10459,6 @@ export namespace Prisma {
     delete?: UserWhereInput | boolean
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCreatedChallengesInput, UserUpdateWithoutCreatedChallengesInput>, UserUncheckedUpdateWithoutCreatedChallengesInput>
-  }
-
-  export type GroupUpdateOneRequiredWithoutChallengesNestedInput = {
-    create?: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
-    connectOrCreate?: GroupCreateOrConnectWithoutChallengesInput
-    upsert?: GroupUpsertWithoutChallengesInput
-    connect?: GroupWhereUniqueInput
-    update?: XOR<XOR<GroupUpdateToOneWithWhereWithoutChallengesInput, GroupUpdateWithoutChallengesInput>, GroupUncheckedUpdateWithoutChallengesInput>
   }
 
   export type SubmissionUpdateManyWithoutChallengeNestedInput = {
@@ -10386,20 +10495,20 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type DailyChallengeCreateNestedOneWithoutSubmissionsInput = {
-    create?: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
-    connectOrCreate?: DailyChallengeCreateOrConnectWithoutSubmissionsInput
-    connect?: DailyChallengeWhereUniqueInput
-  }
-
   export type GroupCreateNestedOneWithoutSubmissionsInput = {
     create?: XOR<GroupCreateWithoutSubmissionsInput, GroupUncheckedCreateWithoutSubmissionsInput>
     connectOrCreate?: GroupCreateOrConnectWithoutSubmissionsInput
     connect?: GroupWhereUniqueInput
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
+  export type DailyChallengeCreateNestedOneWithoutSubmissionsInput = {
+    create?: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
+    connectOrCreate?: DailyChallengeCreateOrConnectWithoutSubmissionsInput
+    connect?: DailyChallengeWhereUniqueInput
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -10418,20 +10527,20 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutSubmissionsInput, UserUpdateWithoutSubmissionsInput>, UserUncheckedUpdateWithoutSubmissionsInput>
   }
 
-  export type DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput = {
-    create?: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
-    connectOrCreate?: DailyChallengeCreateOrConnectWithoutSubmissionsInput
-    upsert?: DailyChallengeUpsertWithoutSubmissionsInput
-    connect?: DailyChallengeWhereUniqueInput
-    update?: XOR<XOR<DailyChallengeUpdateToOneWithWhereWithoutSubmissionsInput, DailyChallengeUpdateWithoutSubmissionsInput>, DailyChallengeUncheckedUpdateWithoutSubmissionsInput>
-  }
-
   export type GroupUpdateOneRequiredWithoutSubmissionsNestedInput = {
     create?: XOR<GroupCreateWithoutSubmissionsInput, GroupUncheckedCreateWithoutSubmissionsInput>
     connectOrCreate?: GroupCreateOrConnectWithoutSubmissionsInput
     upsert?: GroupUpsertWithoutSubmissionsInput
     connect?: GroupWhereUniqueInput
     update?: XOR<XOR<GroupUpdateToOneWithWhereWithoutSubmissionsInput, GroupUpdateWithoutSubmissionsInput>, GroupUncheckedUpdateWithoutSubmissionsInput>
+  }
+
+  export type DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput = {
+    create?: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
+    connectOrCreate?: DailyChallengeCreateOrConnectWithoutSubmissionsInput
+    upsert?: DailyChallengeUpsertWithoutSubmissionsInput
+    connect?: DailyChallengeWhereUniqueInput
+    update?: XOR<XOR<DailyChallengeUpdateToOneWithWhereWithoutSubmissionsInput, DailyChallengeUpdateWithoutSubmissionsInput>, DailyChallengeUncheckedUpdateWithoutSubmissionsInput>
   }
 
   export type UserCreateNestedOneWithoutStatsInput = {
@@ -10452,6 +10561,10 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type UserUpdateOneRequiredWithoutStatsNestedInput = {
@@ -10537,21 +10650,21 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedEnumGroupRoleFilter<$PrismaModel = never> = {
-    equals?: $Enums.GroupRole | EnumGroupRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumGroupRoleFilter<$PrismaModel> | $Enums.GroupRole
+  export type NestedEnumRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
-  export type NestedEnumGroupRoleWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.GroupRole | EnumGroupRoleFieldRefInput<$PrismaModel>
-    in?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    notIn?: $Enums.GroupRole[] | ListEnumGroupRoleFieldRefInput<$PrismaModel>
-    not?: NestedEnumGroupRoleWithAggregatesFilter<$PrismaModel> | $Enums.GroupRole
+  export type NestedEnumRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Role | EnumRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Role[] | ListEnumRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumRoleWithAggregatesFilter<$PrismaModel> | $Enums.Role
     _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumGroupRoleFilter<$PrismaModel>
-    _max?: NestedEnumGroupRoleFilter<$PrismaModel>
+    _min?: NestedEnumRoleFilter<$PrismaModel>
+    _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
   export type NestedStringNullableFilter<$PrismaModel = never> = {
@@ -10573,11 +10686,6 @@ export namespace Prisma {
     in?: $Enums.ChallengeStatus[] | ListEnumChallengeStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.ChallengeStatus[] | ListEnumChallengeStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumChallengeStatusFilter<$PrismaModel> | $Enums.ChallengeStatus
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -10618,37 +10726,17 @@ export namespace Prisma {
     _max?: NestedEnumChallengeStatusFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
-  }
-
-  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
-  }
-
-  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
-    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
-    _count?: NestedIntNullableFilter<$PrismaModel>
-    _min?: NestedDateTimeNullableFilter<$PrismaModel>
-    _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -10678,6 +10766,17 @@ export namespace Prisma {
     not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -10705,16 +10804,32 @@ export namespace Prisma {
     not?: NestedFloatFilter<$PrismaModel> | number
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type GroupMemberCreateWithoutUserInput = {
     id?: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
     group: GroupCreateNestedOneWithoutMembersInput
   }
 
   export type GroupMemberUncheckedCreateWithoutUserInput = {
     id?: string
     groupId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type GroupMemberCreateOrConnectWithoutUserInput = {
@@ -10730,21 +10845,21 @@ export namespace Prisma {
   export type SubmissionCreateWithoutUserInput = {
     id?: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
-    challenge: DailyChallengeCreateNestedOneWithoutSubmissionsInput
+    createdAt?: Date | string
     group: GroupCreateNestedOneWithoutSubmissionsInput
+    challenge: DailyChallengeCreateNestedOneWithoutSubmissionsInput
   }
 
   export type SubmissionUncheckedCreateWithoutUserInput = {
     id?: string
-    challengeId: string
     groupId: string
+    challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionCreateOrConnectWithoutUserInput = {
@@ -10759,20 +10874,30 @@ export namespace Prisma {
 
   export type UserGroupStatsCreateWithoutUserInput = {
     id?: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     group: GroupCreateNestedOneWithoutStatsInput
   }
 
   export type UserGroupStatsUncheckedCreateWithoutUserInput = {
     id?: string
     groupId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserGroupStatsCreateOrConnectWithoutUserInput = {
@@ -10790,7 +10915,8 @@ export namespace Prisma {
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
     group: GroupCreateNestedOneWithoutChallengesInput
     submissions?: SubmissionCreateNestedManyWithoutChallengeInput
   }
@@ -10801,7 +10927,8 @@ export namespace Prisma {
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
     submissions?: SubmissionUncheckedCreateNestedManyWithoutChallengeInput
   }
 
@@ -10812,36 +10939,6 @@ export namespace Prisma {
 
   export type DailyChallengeCreateManyCreatorInputEnvelope = {
     data: DailyChallengeCreateManyCreatorInput | DailyChallengeCreateManyCreatorInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type GroupCreateWithoutCreatorInput = {
-    id?: string
-    name: string
-    invitedCode: string
-    members?: GroupMemberCreateNestedManyWithoutGroupInput
-    challenges?: DailyChallengeCreateNestedManyWithoutGroupInput
-    stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
-    submissions?: SubmissionCreateNestedManyWithoutGroupInput
-  }
-
-  export type GroupUncheckedCreateWithoutCreatorInput = {
-    id?: string
-    name: string
-    invitedCode: string
-    members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
-    challenges?: DailyChallengeUncheckedCreateNestedManyWithoutGroupInput
-    stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
-    submissions?: SubmissionUncheckedCreateNestedManyWithoutGroupInput
-  }
-
-  export type GroupCreateOrConnectWithoutCreatorInput = {
-    where: GroupWhereUniqueInput
-    create: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput>
-  }
-
-  export type GroupCreateManyCreatorInputEnvelope = {
-    data: GroupCreateManyCreatorInput | GroupCreateManyCreatorInput[]
     skipDuplicates?: boolean
   }
 
@@ -10868,7 +10965,8 @@ export namespace Prisma {
     id?: StringFilter<"GroupMember"> | string
     userId?: StringFilter<"GroupMember"> | string
     groupId?: StringFilter<"GroupMember"> | string
-    role?: EnumGroupRoleFilter<"GroupMember"> | $Enums.GroupRole
+    role?: EnumRoleFilter<"GroupMember"> | $Enums.Role
+    joinedAt?: DateTimeFilter<"GroupMember"> | Date | string
   }
 
   export type SubmissionUpsertWithWhereUniqueWithoutUserInput = {
@@ -10893,12 +10991,12 @@ export namespace Prisma {
     NOT?: SubmissionScalarWhereInput | SubmissionScalarWhereInput[]
     id?: StringFilter<"Submission"> | string
     userId?: StringFilter<"Submission"> | string
-    challengeId?: StringFilter<"Submission"> | string
     groupId?: StringFilter<"Submission"> | string
+    challengeId?: StringFilter<"Submission"> | string
     solved?: BoolFilter<"Submission"> | boolean
-    solvedAt?: DateTimeNullableFilter<"Submission"> | Date | string | null
+    solvedAt?: DateTimeFilter<"Submission"> | Date | string
     timeTaken?: IntNullableFilter<"Submission"> | number | null
-    solutionLink?: StringNullableFilter<"Submission"> | string | null
+    createdAt?: DateTimeFilter<"Submission"> | Date | string
   }
 
   export type UserGroupStatsUpsertWithWhereUniqueWithoutUserInput = {
@@ -10924,10 +11022,15 @@ export namespace Prisma {
     id?: StringFilter<"UserGroupStats"> | string
     userId?: StringFilter<"UserGroupStats"> | string
     groupId?: StringFilter<"UserGroupStats"> | string
+    currentStreak?: IntFilter<"UserGroupStats"> | number
+    longestStreak?: IntFilter<"UserGroupStats"> | number
     totalSolved?: IntFilter<"UserGroupStats"> | number
     last7DaysSolved?: IntFilter<"UserGroupStats"> | number
     last30DaysSolved?: IntFilter<"UserGroupStats"> | number
-    currentStreak?: IntFilter<"UserGroupStats"> | number
+    freezeCount?: IntFilter<"UserGroupStats"> | number
+    lastSolvedDate?: DateTimeNullableFilter<"UserGroupStats"> | Date | string | null
+    createdAt?: DateTimeFilter<"UserGroupStats"> | Date | string
+    updatedAt?: DateTimeFilter<"UserGroupStats"> | Date | string
   }
 
   export type DailyChallengeUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -10952,78 +11055,26 @@ export namespace Prisma {
     NOT?: DailyChallengeScalarWhereInput | DailyChallengeScalarWhereInput[]
     id?: StringFilter<"DailyChallenge"> | string
     groupId?: StringFilter<"DailyChallenge"> | string
+    createdBy?: StringNullableFilter<"DailyChallenge"> | string | null
     date?: DateTimeFilter<"DailyChallenge"> | Date | string
     problemLink?: StringNullableFilter<"DailyChallenge"> | string | null
     status?: EnumChallengeStatusFilter<"DailyChallenge"> | $Enums.ChallengeStatus
-    isAutomated?: BoolFilter<"DailyChallenge"> | boolean
-    createdById?: StringNullableFilter<"DailyChallenge"> | string | null
-  }
-
-  export type GroupUpsertWithWhereUniqueWithoutCreatorInput = {
-    where: GroupWhereUniqueInput
-    update: XOR<GroupUpdateWithoutCreatorInput, GroupUncheckedUpdateWithoutCreatorInput>
-    create: XOR<GroupCreateWithoutCreatorInput, GroupUncheckedCreateWithoutCreatorInput>
-  }
-
-  export type GroupUpdateWithWhereUniqueWithoutCreatorInput = {
-    where: GroupWhereUniqueInput
-    data: XOR<GroupUpdateWithoutCreatorInput, GroupUncheckedUpdateWithoutCreatorInput>
-  }
-
-  export type GroupUpdateManyWithWhereWithoutCreatorInput = {
-    where: GroupScalarWhereInput
-    data: XOR<GroupUpdateManyMutationInput, GroupUncheckedUpdateManyWithoutCreatorInput>
-  }
-
-  export type GroupScalarWhereInput = {
-    AND?: GroupScalarWhereInput | GroupScalarWhereInput[]
-    OR?: GroupScalarWhereInput[]
-    NOT?: GroupScalarWhereInput | GroupScalarWhereInput[]
-    id?: StringFilter<"Group"> | string
-    name?: StringFilter<"Group"> | string
-    invitedCode?: StringFilter<"Group"> | string
-    creatorId?: StringFilter<"Group"> | string
-  }
-
-  export type UserCreateWithoutCreatedGroupsInput = {
-    id?: string
-    name: string
-    email: string
-    passwordHash: string
-    createdAt?: Date | string
-    memberships?: GroupMemberCreateNestedManyWithoutUserInput
-    submissions?: SubmissionCreateNestedManyWithoutUserInput
-    stats?: UserGroupStatsCreateNestedManyWithoutUserInput
-    createdChallenges?: DailyChallengeCreateNestedManyWithoutCreatorInput
-  }
-
-  export type UserUncheckedCreateWithoutCreatedGroupsInput = {
-    id?: string
-    name: string
-    email: string
-    passwordHash: string
-    createdAt?: Date | string
-    memberships?: GroupMemberUncheckedCreateNestedManyWithoutUserInput
-    submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
-    stats?: UserGroupStatsUncheckedCreateNestedManyWithoutUserInput
-    createdChallenges?: DailyChallengeUncheckedCreateNestedManyWithoutCreatorInput
-  }
-
-  export type UserCreateOrConnectWithoutCreatedGroupsInput = {
-    where: UserWhereUniqueInput
-    create: XOR<UserCreateWithoutCreatedGroupsInput, UserUncheckedCreateWithoutCreatedGroupsInput>
+    createdAt?: DateTimeFilter<"DailyChallenge"> | Date | string
+    updatedAt?: DateTimeFilter<"DailyChallenge"> | Date | string
   }
 
   export type GroupMemberCreateWithoutGroupInput = {
     id?: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
     user: UserCreateNestedOneWithoutMembershipsInput
   }
 
   export type GroupMemberUncheckedCreateWithoutGroupInput = {
     id?: string
     userId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type GroupMemberCreateOrConnectWithoutGroupInput = {
@@ -11041,18 +11092,20 @@ export namespace Prisma {
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
     creator?: UserCreateNestedOneWithoutCreatedChallengesInput
     submissions?: SubmissionCreateNestedManyWithoutChallengeInput
   }
 
   export type DailyChallengeUncheckedCreateWithoutGroupInput = {
     id?: string
+    createdBy?: string | null
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     submissions?: SubmissionUncheckedCreateNestedManyWithoutChallengeInput
   }
 
@@ -11068,20 +11121,30 @@ export namespace Prisma {
 
   export type UserGroupStatsCreateWithoutGroupInput = {
     id?: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutStatsInput
   }
 
   export type UserGroupStatsUncheckedCreateWithoutGroupInput = {
     id?: string
     userId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserGroupStatsCreateOrConnectWithoutGroupInput = {
@@ -11097,9 +11160,9 @@ export namespace Prisma {
   export type SubmissionCreateWithoutGroupInput = {
     id?: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
     user: UserCreateNestedOneWithoutSubmissionsInput
     challenge: DailyChallengeCreateNestedOneWithoutSubmissionsInput
   }
@@ -11109,9 +11172,9 @@ export namespace Prisma {
     userId: string
     challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionCreateOrConnectWithoutGroupInput = {
@@ -11122,41 +11185,6 @@ export namespace Prisma {
   export type SubmissionCreateManyGroupInputEnvelope = {
     data: SubmissionCreateManyGroupInput | SubmissionCreateManyGroupInput[]
     skipDuplicates?: boolean
-  }
-
-  export type UserUpsertWithoutCreatedGroupsInput = {
-    update: XOR<UserUpdateWithoutCreatedGroupsInput, UserUncheckedUpdateWithoutCreatedGroupsInput>
-    create: XOR<UserCreateWithoutCreatedGroupsInput, UserUncheckedCreateWithoutCreatedGroupsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutCreatedGroupsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutCreatedGroupsInput, UserUncheckedUpdateWithoutCreatedGroupsInput>
-  }
-
-  export type UserUpdateWithoutCreatedGroupsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    memberships?: GroupMemberUpdateManyWithoutUserNestedInput
-    submissions?: SubmissionUpdateManyWithoutUserNestedInput
-    stats?: UserGroupStatsUpdateManyWithoutUserNestedInput
-    createdChallenges?: DailyChallengeUpdateManyWithoutCreatorNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutCreatedGroupsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    email?: StringFieldUpdateOperationsInput | string
-    passwordHash?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    memberships?: GroupMemberUncheckedUpdateManyWithoutUserNestedInput
-    submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
-    stats?: UserGroupStatsUncheckedUpdateManyWithoutUserNestedInput
-    createdChallenges?: DailyChallengeUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type GroupMemberUpsertWithWhereUniqueWithoutGroupInput = {
@@ -11232,7 +11260,6 @@ export namespace Prisma {
     submissions?: SubmissionCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -11244,7 +11271,6 @@ export namespace Prisma {
     submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeUncheckedCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupUncheckedCreateNestedManyWithoutCreatorInput
   }
 
   export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -11255,8 +11281,9 @@ export namespace Prisma {
   export type GroupCreateWithoutMembersInput = {
     id?: string
     name: string
-    invitedCode: string
-    creator: UserCreateNestedOneWithoutCreatedGroupsInput
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     challenges?: DailyChallengeCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
     submissions?: SubmissionCreateNestedManyWithoutGroupInput
@@ -11265,8 +11292,9 @@ export namespace Prisma {
   export type GroupUncheckedCreateWithoutMembersInput = {
     id?: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     challenges?: DailyChallengeUncheckedCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutGroupInput
@@ -11297,7 +11325,6 @@ export namespace Prisma {
     submissions?: SubmissionUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -11309,7 +11336,6 @@ export namespace Prisma {
     submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUncheckedUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type GroupUpsertWithoutMembersInput = {
@@ -11326,8 +11352,9 @@ export namespace Prisma {
   export type GroupUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creator?: UserUpdateOneRequiredWithoutCreatedGroupsNestedInput
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
     stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
     submissions?: SubmissionUpdateManyWithoutGroupNestedInput
@@ -11336,11 +11363,39 @@ export namespace Prisma {
   export type GroupUncheckedUpdateWithoutMembersInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutGroupNestedInput
+  }
+
+  export type GroupCreateWithoutChallengesInput = {
+    id?: string
+    name: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
+    members?: GroupMemberCreateNestedManyWithoutGroupInput
+    stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
+    submissions?: SubmissionCreateNestedManyWithoutGroupInput
+  }
+
+  export type GroupUncheckedCreateWithoutChallengesInput = {
+    id?: string
+    name: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
+    members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
+    stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
+    submissions?: SubmissionUncheckedCreateNestedManyWithoutGroupInput
+  }
+
+  export type GroupCreateOrConnectWithoutChallengesInput = {
+    where: GroupWhereUniqueInput
+    create: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
   }
 
   export type UserCreateWithoutCreatedChallengesInput = {
@@ -11352,7 +11407,6 @@ export namespace Prisma {
     memberships?: GroupMemberCreateNestedManyWithoutUserInput
     submissions?: SubmissionCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsCreateNestedManyWithoutUserInput
-    createdGroups?: GroupCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutCreatedChallengesInput = {
@@ -11364,7 +11418,6 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedCreateNestedManyWithoutUserInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutUserInput
-    createdGroups?: GroupUncheckedCreateNestedManyWithoutCreatorInput
   }
 
   export type UserCreateOrConnectWithoutCreatedChallengesInput = {
@@ -11372,37 +11425,12 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutCreatedChallengesInput, UserUncheckedCreateWithoutCreatedChallengesInput>
   }
 
-  export type GroupCreateWithoutChallengesInput = {
-    id?: string
-    name: string
-    invitedCode: string
-    creator: UserCreateNestedOneWithoutCreatedGroupsInput
-    members?: GroupMemberCreateNestedManyWithoutGroupInput
-    stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
-    submissions?: SubmissionCreateNestedManyWithoutGroupInput
-  }
-
-  export type GroupUncheckedCreateWithoutChallengesInput = {
-    id?: string
-    name: string
-    invitedCode: string
-    creatorId: string
-    members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
-    stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
-    submissions?: SubmissionUncheckedCreateNestedManyWithoutGroupInput
-  }
-
-  export type GroupCreateOrConnectWithoutChallengesInput = {
-    where: GroupWhereUniqueInput
-    create: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
-  }
-
   export type SubmissionCreateWithoutChallengeInput = {
     id?: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
     user: UserCreateNestedOneWithoutSubmissionsInput
     group: GroupCreateNestedOneWithoutSubmissionsInput
   }
@@ -11412,9 +11440,9 @@ export namespace Prisma {
     userId: string
     groupId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionCreateOrConnectWithoutChallengeInput = {
@@ -11425,6 +11453,39 @@ export namespace Prisma {
   export type SubmissionCreateManyChallengeInputEnvelope = {
     data: SubmissionCreateManyChallengeInput | SubmissionCreateManyChallengeInput[]
     skipDuplicates?: boolean
+  }
+
+  export type GroupUpsertWithoutChallengesInput = {
+    update: XOR<GroupUpdateWithoutChallengesInput, GroupUncheckedUpdateWithoutChallengesInput>
+    create: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
+    where?: GroupWhereInput
+  }
+
+  export type GroupUpdateToOneWithWhereWithoutChallengesInput = {
+    where?: GroupWhereInput
+    data: XOR<GroupUpdateWithoutChallengesInput, GroupUncheckedUpdateWithoutChallengesInput>
+  }
+
+  export type GroupUpdateWithoutChallengesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: GroupMemberUpdateManyWithoutGroupNestedInput
+    stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
+    submissions?: SubmissionUpdateManyWithoutGroupNestedInput
+  }
+
+  export type GroupUncheckedUpdateWithoutChallengesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
+    stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
+    submissions?: SubmissionUncheckedUpdateManyWithoutGroupNestedInput
   }
 
   export type UserUpsertWithoutCreatedChallengesInput = {
@@ -11447,7 +11508,6 @@ export namespace Prisma {
     memberships?: GroupMemberUpdateManyWithoutUserNestedInput
     submissions?: SubmissionUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUpdateManyWithoutUserNestedInput
-    createdGroups?: GroupUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedChallengesInput = {
@@ -11459,38 +11519,6 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedUpdateManyWithoutUserNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutUserNestedInput
-    createdGroups?: GroupUncheckedUpdateManyWithoutCreatorNestedInput
-  }
-
-  export type GroupUpsertWithoutChallengesInput = {
-    update: XOR<GroupUpdateWithoutChallengesInput, GroupUncheckedUpdateWithoutChallengesInput>
-    create: XOR<GroupCreateWithoutChallengesInput, GroupUncheckedCreateWithoutChallengesInput>
-    where?: GroupWhereInput
-  }
-
-  export type GroupUpdateToOneWithWhereWithoutChallengesInput = {
-    where?: GroupWhereInput
-    data: XOR<GroupUpdateWithoutChallengesInput, GroupUncheckedUpdateWithoutChallengesInput>
-  }
-
-  export type GroupUpdateWithoutChallengesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creator?: UserUpdateOneRequiredWithoutCreatedGroupsNestedInput
-    members?: GroupMemberUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
-    submissions?: SubmissionUpdateManyWithoutGroupNestedInput
-  }
-
-  export type GroupUncheckedUpdateWithoutChallengesInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
-    members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
-    submissions?: SubmissionUncheckedUpdateManyWithoutGroupNestedInput
   }
 
   export type SubmissionUpsertWithWhereUniqueWithoutChallengeInput = {
@@ -11518,7 +11546,6 @@ export namespace Prisma {
     memberships?: GroupMemberCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutSubmissionsInput = {
@@ -11530,7 +11557,6 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedCreateNestedManyWithoutUserInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeUncheckedCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupUncheckedCreateNestedManyWithoutCreatorInput
   }
 
   export type UserCreateOrConnectWithoutSubmissionsInput = {
@@ -11538,36 +11564,12 @@ export namespace Prisma {
     create: XOR<UserCreateWithoutSubmissionsInput, UserUncheckedCreateWithoutSubmissionsInput>
   }
 
-  export type DailyChallengeCreateWithoutSubmissionsInput = {
-    id?: string
-    date: Date | string
-    problemLink?: string | null
-    status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    creator?: UserCreateNestedOneWithoutCreatedChallengesInput
-    group: GroupCreateNestedOneWithoutChallengesInput
-  }
-
-  export type DailyChallengeUncheckedCreateWithoutSubmissionsInput = {
-    id?: string
-    groupId: string
-    date: Date | string
-    problemLink?: string | null
-    status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    createdById?: string | null
-  }
-
-  export type DailyChallengeCreateOrConnectWithoutSubmissionsInput = {
-    where: DailyChallengeWhereUniqueInput
-    create: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
-  }
-
   export type GroupCreateWithoutSubmissionsInput = {
     id?: string
     name: string
-    invitedCode: string
-    creator: UserCreateNestedOneWithoutCreatedGroupsInput
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsCreateNestedManyWithoutGroupInput
@@ -11576,8 +11578,9 @@ export namespace Prisma {
   export type GroupUncheckedCreateWithoutSubmissionsInput = {
     id?: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeUncheckedCreateNestedManyWithoutGroupInput
     stats?: UserGroupStatsUncheckedCreateNestedManyWithoutGroupInput
@@ -11586,6 +11589,33 @@ export namespace Prisma {
   export type GroupCreateOrConnectWithoutSubmissionsInput = {
     where: GroupWhereUniqueInput
     create: XOR<GroupCreateWithoutSubmissionsInput, GroupUncheckedCreateWithoutSubmissionsInput>
+  }
+
+  export type DailyChallengeCreateWithoutSubmissionsInput = {
+    id?: string
+    date: Date | string
+    problemLink?: string | null
+    status?: $Enums.ChallengeStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    group: GroupCreateNestedOneWithoutChallengesInput
+    creator?: UserCreateNestedOneWithoutCreatedChallengesInput
+  }
+
+  export type DailyChallengeUncheckedCreateWithoutSubmissionsInput = {
+    id?: string
+    groupId: string
+    createdBy?: string | null
+    date: Date | string
+    problemLink?: string | null
+    status?: $Enums.ChallengeStatus
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DailyChallengeCreateOrConnectWithoutSubmissionsInput = {
+    where: DailyChallengeWhereUniqueInput
+    create: XOR<DailyChallengeCreateWithoutSubmissionsInput, DailyChallengeUncheckedCreateWithoutSubmissionsInput>
   }
 
   export type UserUpsertWithoutSubmissionsInput = {
@@ -11608,7 +11638,6 @@ export namespace Prisma {
     memberships?: GroupMemberUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubmissionsInput = {
@@ -11620,7 +11649,39 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedUpdateManyWithoutUserNestedInput
     stats?: UserGroupStatsUncheckedUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUncheckedUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUncheckedUpdateManyWithoutCreatorNestedInput
+  }
+
+  export type GroupUpsertWithoutSubmissionsInput = {
+    update: XOR<GroupUpdateWithoutSubmissionsInput, GroupUncheckedUpdateWithoutSubmissionsInput>
+    create: XOR<GroupCreateWithoutSubmissionsInput, GroupUncheckedCreateWithoutSubmissionsInput>
+    where?: GroupWhereInput
+  }
+
+  export type GroupUpdateToOneWithWhereWithoutSubmissionsInput = {
+    where?: GroupWhereInput
+    data: XOR<GroupUpdateWithoutSubmissionsInput, GroupUncheckedUpdateWithoutSubmissionsInput>
+  }
+
+  export type GroupUpdateWithoutSubmissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: GroupMemberUpdateManyWithoutGroupNestedInput
+    challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
+    stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
+  }
+
+  export type GroupUncheckedUpdateWithoutSubmissionsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
+    challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
+    stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
   }
 
   export type DailyChallengeUpsertWithoutSubmissionsInput = {
@@ -11639,50 +11700,21 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    creator?: UserUpdateOneWithoutCreatedChallengesNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutChallengesNestedInput
+    creator?: UserUpdateOneWithoutCreatedChallengesNestedInput
   }
 
   export type DailyChallengeUncheckedUpdateWithoutSubmissionsInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
-  }
-
-  export type GroupUpsertWithoutSubmissionsInput = {
-    update: XOR<GroupUpdateWithoutSubmissionsInput, GroupUncheckedUpdateWithoutSubmissionsInput>
-    create: XOR<GroupCreateWithoutSubmissionsInput, GroupUncheckedCreateWithoutSubmissionsInput>
-    where?: GroupWhereInput
-  }
-
-  export type GroupUpdateToOneWithWhereWithoutSubmissionsInput = {
-    where?: GroupWhereInput
-    data: XOR<GroupUpdateWithoutSubmissionsInput, GroupUncheckedUpdateWithoutSubmissionsInput>
-  }
-
-  export type GroupUpdateWithoutSubmissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creator?: UserUpdateOneRequiredWithoutCreatedGroupsNestedInput
-    members?: GroupMemberUpdateManyWithoutGroupNestedInput
-    challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
-  }
-
-  export type GroupUncheckedUpdateWithoutSubmissionsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
-    members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
-    challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserCreateWithoutStatsInput = {
@@ -11694,7 +11726,6 @@ export namespace Prisma {
     memberships?: GroupMemberCreateNestedManyWithoutUserInput
     submissions?: SubmissionCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupCreateNestedManyWithoutCreatorInput
   }
 
   export type UserUncheckedCreateWithoutStatsInput = {
@@ -11706,7 +11737,6 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedCreateNestedManyWithoutUserInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutUserInput
     createdChallenges?: DailyChallengeUncheckedCreateNestedManyWithoutCreatorInput
-    createdGroups?: GroupUncheckedCreateNestedManyWithoutCreatorInput
   }
 
   export type UserCreateOrConnectWithoutStatsInput = {
@@ -11717,8 +11747,9 @@ export namespace Prisma {
   export type GroupCreateWithoutStatsInput = {
     id?: string
     name: string
-    invitedCode: string
-    creator: UserCreateNestedOneWithoutCreatedGroupsInput
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeCreateNestedManyWithoutGroupInput
     submissions?: SubmissionCreateNestedManyWithoutGroupInput
@@ -11727,8 +11758,9 @@ export namespace Prisma {
   export type GroupUncheckedCreateWithoutStatsInput = {
     id?: string
     name: string
-    invitedCode: string
-    creatorId: string
+    inviteCode: string
+    createdBy: string
+    createdAt?: Date | string
     members?: GroupMemberUncheckedCreateNestedManyWithoutGroupInput
     challenges?: DailyChallengeUncheckedCreateNestedManyWithoutGroupInput
     submissions?: SubmissionUncheckedCreateNestedManyWithoutGroupInput
@@ -11759,7 +11791,6 @@ export namespace Prisma {
     memberships?: GroupMemberUpdateManyWithoutUserNestedInput
     submissions?: SubmissionUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUpdateManyWithoutCreatorNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStatsInput = {
@@ -11771,7 +11802,6 @@ export namespace Prisma {
     memberships?: GroupMemberUncheckedUpdateManyWithoutUserNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutUserNestedInput
     createdChallenges?: DailyChallengeUncheckedUpdateManyWithoutCreatorNestedInput
-    createdGroups?: GroupUncheckedUpdateManyWithoutCreatorNestedInput
   }
 
   export type GroupUpsertWithoutStatsInput = {
@@ -11788,8 +11818,9 @@ export namespace Prisma {
   export type GroupUpdateWithoutStatsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creator?: UserUpdateOneRequiredWithoutCreatedGroupsNestedInput
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: GroupMemberUpdateManyWithoutGroupNestedInput
     challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
     submissions?: SubmissionUpdateManyWithoutGroupNestedInput
@@ -11798,8 +11829,9 @@ export namespace Prisma {
   export type GroupUncheckedUpdateWithoutStatsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    creatorId?: StringFieldUpdateOperationsInput | string
+    inviteCode?: StringFieldUpdateOperationsInput | string
+    createdBy?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
     challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
     submissions?: SubmissionUncheckedUpdateManyWithoutGroupNestedInput
@@ -11808,26 +11840,32 @@ export namespace Prisma {
   export type GroupMemberCreateManyUserInput = {
     id?: string
     groupId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type SubmissionCreateManyUserInput = {
     id?: string
-    challengeId: string
     groupId: string
+    challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type UserGroupStatsCreateManyUserInput = {
     id?: string
     groupId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type DailyChallengeCreateManyCreatorInput = {
@@ -11836,88 +11874,101 @@ export namespace Prisma {
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-  }
-
-  export type GroupCreateManyCreatorInput = {
-    id?: string
-    name: string
-    invitedCode: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type GroupMemberUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutMembersNestedInput
   }
 
   export type GroupMemberUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
-    challenge?: DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutSubmissionsNestedInput
+    challenge?: DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   }
 
   export type SubmissionUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    challengeId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    challengeId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutStatsNestedInput
   }
 
   export type UserGroupStatsUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DailyChallengeUpdateWithoutCreatorInput = {
@@ -11925,7 +11976,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     group?: GroupUpdateOneRequiredWithoutChallengesNestedInput
     submissions?: SubmissionUpdateManyWithoutChallengeNestedInput
   }
@@ -11936,7 +11988,8 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     submissions?: SubmissionUncheckedUpdateManyWithoutChallengeNestedInput
   }
 
@@ -11946,57 +11999,39 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-  }
-
-  export type GroupUpdateWithoutCreatorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    members?: GroupMemberUpdateManyWithoutGroupNestedInput
-    challenges?: DailyChallengeUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUpdateManyWithoutGroupNestedInput
-    submissions?: SubmissionUpdateManyWithoutGroupNestedInput
-  }
-
-  export type GroupUncheckedUpdateWithoutCreatorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
-    members?: GroupMemberUncheckedUpdateManyWithoutGroupNestedInput
-    challenges?: DailyChallengeUncheckedUpdateManyWithoutGroupNestedInput
-    stats?: UserGroupStatsUncheckedUpdateManyWithoutGroupNestedInput
-    submissions?: SubmissionUncheckedUpdateManyWithoutGroupNestedInput
-  }
-
-  export type GroupUncheckedUpdateManyWithoutCreatorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: StringFieldUpdateOperationsInput | string
-    invitedCode?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberCreateManyGroupInput = {
     id?: string
     userId: string
-    role?: $Enums.GroupRole
+    role?: $Enums.Role
+    joinedAt?: Date | string
   }
 
   export type DailyChallengeCreateManyGroupInput = {
     id?: string
+    createdBy?: string | null
     date: Date | string
     problemLink?: string | null
     status?: $Enums.ChallengeStatus
-    isAutomated?: boolean
-    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserGroupStatsCreateManyGroupInput = {
     id?: string
     userId: string
+    currentStreak?: number
+    longestStreak?: number
     totalSolved?: number
     last7DaysSolved?: number
     last30DaysSolved?: number
-    currentStreak?: number
+    freezeCount?: number
+    lastSolvedDate?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type SubmissionCreateManyGroupInput = {
@@ -12004,27 +12039,30 @@ export namespace Prisma {
     userId: string
     challengeId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type GroupMemberUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutMembershipsNestedInput
   }
 
   export type GroupMemberUncheckedUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type GroupMemberUncheckedUpdateManyWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
-    role?: EnumGroupRoleFieldUpdateOperationsInput | $Enums.GroupRole
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    joinedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DailyChallengeUpdateWithoutGroupInput = {
@@ -12032,63 +12070,81 @@ export namespace Prisma {
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     creator?: UserUpdateOneWithoutCreatedChallengesNestedInput
     submissions?: SubmissionUpdateManyWithoutChallengeNestedInput
   }
 
   export type DailyChallengeUncheckedUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     submissions?: SubmissionUncheckedUpdateManyWithoutChallengeNestedInput
   }
 
   export type DailyChallengeUncheckedUpdateManyWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
+    createdBy?: NullableStringFieldUpdateOperationsInput | string | null
     date?: DateTimeFieldUpdateOperationsInput | Date | string
     problemLink?: NullableStringFieldUpdateOperationsInput | string | null
     status?: EnumChallengeStatusFieldUpdateOperationsInput | $Enums.ChallengeStatus
-    isAutomated?: BoolFieldUpdateOperationsInput | boolean
-    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutStatsNestedInput
   }
 
   export type UserGroupStatsUncheckedUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserGroupStatsUncheckedUpdateManyWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    currentStreak?: IntFieldUpdateOperationsInput | number
+    longestStreak?: IntFieldUpdateOperationsInput | number
     totalSolved?: IntFieldUpdateOperationsInput | number
     last7DaysSolved?: IntFieldUpdateOperationsInput | number
     last30DaysSolved?: IntFieldUpdateOperationsInput | number
-    currentStreak?: IntFieldUpdateOperationsInput | number
+    freezeCount?: IntFieldUpdateOperationsInput | number
+    lastSolvedDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUpdateWithoutGroupInput = {
     id?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSubmissionsNestedInput
     challenge?: DailyChallengeUpdateOneRequiredWithoutSubmissionsNestedInput
   }
@@ -12098,9 +12154,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUncheckedUpdateManyWithoutGroupInput = {
@@ -12108,9 +12164,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     challengeId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionCreateManyChallengeInput = {
@@ -12118,17 +12174,17 @@ export namespace Prisma {
     userId: string
     groupId: string
     solved?: boolean
-    solvedAt?: Date | string | null
+    solvedAt?: Date | string
     timeTaken?: number | null
-    solutionLink?: string | null
+    createdAt?: Date | string
   }
 
   export type SubmissionUpdateWithoutChallengeInput = {
     id?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutSubmissionsNestedInput
     group?: GroupUpdateOneRequiredWithoutSubmissionsNestedInput
   }
@@ -12138,9 +12194,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SubmissionUncheckedUpdateManyWithoutChallengeInput = {
@@ -12148,9 +12204,9 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
     groupId?: StringFieldUpdateOperationsInput | string
     solved?: BoolFieldUpdateOperationsInput | boolean
-    solvedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    solvedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     timeTaken?: NullableIntFieldUpdateOperationsInput | number | null
-    solutionLink?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

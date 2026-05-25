@@ -1,8 +1,19 @@
 import express from 'express';
-import * as groupController from '../../controllers/group.controller.js';
+import * as groupController from './group.controller.js';
+import { protectRoute } from '../../middleware/auth.middleware.js';
+import { isGroupMember } from '../../middleware/group.middleware.js';
 
 const router = express.Router();
 
-router.get('/:id', groupController.getGroup);
+// All group routes are protected and require JWT verification
+router.use(protectRoute);
+
+// Group operations
+router.post('/', groupController.createGroupController);
+router.post('/join', groupController.joinGroupController);
+
+// Member-only operations (verified via isGroupMember middleware)
+router.get('/:groupId', isGroupMember, groupController.getGroupController);
+router.get('/:groupId/members', isGroupMember, groupController.getGroupMembersController);
 
 export default router;

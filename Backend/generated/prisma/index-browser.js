@@ -131,46 +131,54 @@ exports.Prisma.UserScalarFieldEnum = {
 exports.Prisma.GroupScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  invitedCode: 'invitedCode',
-  creatorId: 'creatorId'
+  inviteCode: 'inviteCode',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.GroupMemberScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   groupId: 'groupId',
-  role: 'role'
+  role: 'role',
+  joinedAt: 'joinedAt'
 };
 
 exports.Prisma.DailyChallengeScalarFieldEnum = {
   id: 'id',
   groupId: 'groupId',
+  createdBy: 'createdBy',
   date: 'date',
   problemLink: 'problemLink',
   status: 'status',
-  isAutomated: 'isAutomated',
-  createdById: 'createdById'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SubmissionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
-  challengeId: 'challengeId',
   groupId: 'groupId',
+  challengeId: 'challengeId',
   solved: 'solved',
   solvedAt: 'solvedAt',
   timeTaken: 'timeTaken',
-  solutionLink: 'solutionLink'
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.UserGroupStatsScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   groupId: 'groupId',
+  currentStreak: 'currentStreak',
+  longestStreak: 'longestStreak',
   totalSolved: 'totalSolved',
   last7DaysSolved: 'last7DaysSolved',
   last30DaysSolved: 'last30DaysSolved',
-  currentStreak: 'currentStreak'
+  freezeCount: 'freezeCount',
+  lastSolvedDate: 'lastSolvedDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -187,7 +195,7 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-exports.GroupRole = exports.$Enums.GroupRole = {
+exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
   MEMBER: 'MEMBER'
 };
@@ -195,8 +203,7 @@ exports.GroupRole = exports.$Enums.GroupRole = {
 exports.ChallengeStatus = exports.$Enums.ChallengeStatus = {
   WAITING: 'WAITING',
   ACTIVE: 'ACTIVE',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED'
+  CLOSED: 'CLOSED'
 };
 
 exports.Prisma.ModelName = {
