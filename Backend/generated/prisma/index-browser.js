@@ -181,9 +181,25 @@ exports.Prisma.UserGroupStatsScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.ActivityLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  groupId: 'groupId',
+  challengeId: 'challengeId',
+  type: 'type',
+  message: 'message',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -194,6 +210,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
@@ -212,7 +234,8 @@ exports.Prisma.ModelName = {
   GroupMember: 'GroupMember',
   DailyChallenge: 'DailyChallenge',
   Submission: 'Submission',
-  UserGroupStats: 'UserGroupStats'
+  UserGroupStats: 'UserGroupStats',
+  ActivityLog: 'ActivityLog'
 };
 
 /**

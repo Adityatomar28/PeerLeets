@@ -32,6 +32,7 @@ model User {
   submissions       Submission[]
   stats             UserGroupStats[]
   createdChallenges DailyChallenge[] @relation("ChallengeCreator")
+  activityLogs      ActivityLog[]
 }
 
 model Group {
@@ -41,10 +42,11 @@ model Group {
   createdBy  String
   createdAt  DateTime @default(now())
 
-  members     GroupMember[]
-  challenges  DailyChallenge[]
-  stats       UserGroupStats[]
-  submissions Submission[]
+  members      GroupMember[]
+  challenges   DailyChallenge[]
+  stats        UserGroupStats[]
+  submissions  Submission[]
+  activityLogs ActivityLog[]
 }
 
 model GroupMember {
@@ -136,4 +138,20 @@ model UserGroupStats {
   group Group @relation(fields: [groupId], references: [id])
 
   @@unique([userId, groupId])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  groupId     String
+  challengeId String?
+  type        String
+  message     String
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  group Group @relation(fields: [groupId], references: [id])
+
+  @@index([groupId, createdAt])
 }

@@ -4,6 +4,7 @@ import challengeRepository from "../challenge/challenge.repository.js";
 import groupRepository from "../group/group.repository.js";
 import { calculateStreakAndFreeze } from "../../services/streak.service.js";
 import { updateConsistencyStats } from "../../services/consistency.service.js";
+import { eventEmitter } from "../../services/event.service.js";
 
 /**
  * Creates custom error with status codes for controller mapping.
@@ -73,7 +74,11 @@ export const solveChallengeService = async ({ userId, groupId, challengeId, time
   }
 
   // 4. Run database transaction to ensure atomicity
-  return prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
+    // Check if this is the first solver for the challenge
+    const existingCount = await tx.submission.count({ where: { challengeId } });
+    const isFirst = existingCount === 0;
+
     // A. Create submission
     const submission = await submissionRepository.createSubmission({
       userId,
@@ -113,8 +118,56 @@ export const solveChallengeService = async ({ userId, groupId, challengeId, time
     return {
       submission,
       stats: updatedStats,
+      isFirst,
+      freezeUsed: streakUpdates.freezeCount < stats.freezeCount,
     };
   });
+
+  // Emit social events asynchronously (outside of the database transaction)
+  setImmediate(() => {
+    try {
+      // 1. Emit SOLVED event
+      eventEmitter.emit('SOLVED', {
+        userId,
+        groupId,
+        challengeId,
+        metadata: { timeTaken: result.submission.timeTaken },
+      });
+
+      // 2. Emit FIRST_SOLVER event if applicable
+      if (result.isFirst) {
+        eventEmitter.emit('FIRST_SOLVER', {
+          userId,
+          groupId,
+          challengeId,
+        });
+      }
+
+      // 3. Emit FREEZE_USED event if applicable
+      if (result.freezeUsed) {
+        eventEmitter.emit('FREEZE_USED', {
+          userId,
+          groupId,
+          challengeId,
+        });
+      }
+
+      // 4. Emit STREAK_UPDATED event
+      eventEmitter.emit('STREAK_UPDATED', {
+        userId,
+        groupId,
+        challengeId,
+        metadata: { currentStreak: result.stats.currentStreak },
+      });
+    } catch (err) {
+      console.error("Error emitting solve events:", err);
+    }
+  });
+
+  return {
+    submission: result.submission,
+    stats: result.stats,
+  };
 };
 
 /**

@@ -1,6 +1,7 @@
 import prisma from "../../config/db.js";
 import challengeRepository from "./challenge.repository.js";
 import challengeUtils from "./challenge.utils.js";
+import { eventEmitter } from "../../services/event.service.js";
 
 /**
  * Creates custom error with status codes for controller mapping.
@@ -62,11 +63,20 @@ export const createDailyChallengeSlot = async ({ groupId }) => {
   const nextChallengerId = challengeUtils.getNextChallenger(members, lastChallengerId);
 
   // 5. Create the WAITING challenge slot
-  return challengeRepository.createChallenge({
+  const slot = await challengeRepository.createChallenge({
     groupId,
     date: today,
     createdBy: nextChallengerId,
   });
+
+  // Emit event asynchronously
+  eventEmitter.emit('CHALLENGE_CREATED', {
+    userId: nextChallengerId,
+    groupId,
+    challengeId: slot.id,
+  });
+
+  return slot;
 };
 
 /**
@@ -102,10 +112,19 @@ export const activateChallengeService = async ({ challengeId, userId, problemLin
     throw createError("Access Denied: Only the assigned challenger can activate this challenge", 403);
   }
 
-  return challengeRepository.updateChallenge(challengeId, {
+  const updatedChallenge = await challengeRepository.updateChallenge(challengeId, {
     problemLink,
     status: "ACTIVE",
   });
+
+  // Emit event asynchronously
+  eventEmitter.emit('CHALLENGE_ACTIVATED', {
+    userId,
+    groupId: challenge.groupId,
+    challengeId,
+  });
+
+  return updatedChallenge;
 };
 
 /**
