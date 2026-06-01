@@ -126,9 +126,38 @@ export const initGatewayListeners = (io) => {
   });
 };
 
+export const evictUserFromGroupRoom = (userId, groupId) => {
+  if (!ioInstance) return;
+  try {
+    const roomName = `group:${groupId}`;
+    let evictedCount = 0;
+
+    for (const [socketId, socket] of ioInstance.sockets.sockets) {
+      if (socket.user?.id === userId) {
+        if (socket.rooms.has(roomName)) {
+          socket.leave(roomName);
+          socket.emit(SERVER_EVENTS.ERROR, {
+            message: "Access Denied: You have left or been removed from this group.",
+            code: "ROOM_EVICTED",
+            groupId,
+          });
+          evictedCount++;
+        }
+      }
+    }
+
+    if (evictedCount > 0) {
+      console.log(`[Socket Gateway] Session Eviction | Evicted ${evictedCount} sockets of user ${userId} from room "${roomName}"`);
+    }
+  } catch (error) {
+    console.error(`[Socket Gateway] Session Eviction failed for user ${userId}:`, error.message);
+  }
+};
+
 export default {
   setIoInstance,
   getIoInstance,
   sendToGroup,
   initGatewayListeners,
+  evictUserFromGroupRoom,
 };

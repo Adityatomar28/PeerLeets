@@ -353,8 +353,48 @@ async function runTests() {
     io.to(`group:${group.id}`).emit('activity:created', { message: 'Mock activity to test re-established room connection!' });
 
     await activityReconnectPromise;
-    reconnectedClient.disconnect();
     console.log("   ✅ Reconnection and Room entry checks fully verified");
+
+    // ----------------------------------------------------
+    // 10. TEST SOCKET SESSION EVICTION ON MEMBERSHIP LEAVE
+    // ----------------------------------------------------
+    console.log("\n[Test 8] Testing Active Socket Session Eviction on membership leave...");
+    
+    // Set up a listener for eviction error on reconnectedClient (Bob)
+    const evictionPromise = new Promise((resolve) => {
+      reconnectedClient.once("socket:error", (err) => {
+        if (err.code === "ROOM_EVICTED") {
+          console.log(`   ✅ Bob reconnected socket received live "ROOM_EVICTED" session eviction alert: "${err.message}"`);
+          resolve(err);
+        }
+      });
+    });
+
+    console.log("Bob leaves the group via leaveGroupService...");
+    const { leaveGroupService } = await import("../src/modules/group/group.service.js");
+    await leaveGroupService({ userId: userB.id, groupId: group.id });
+
+    // Wait for the async bridge to expel Bob
+    await evictionPromise;
+
+    // Verify Bob is no longer in the room on the server by broadcasting a message
+    // and verifying Bob does NOT receive it!
+    let gotBroadcastAfterEviction = false;
+    reconnectedClient.on("activity:created", () => {
+      gotBroadcastAfterEviction = true;
+    });
+
+    // Broadcast a mock message to the group
+    io.to(`group:${group.id}`).emit('activity:created', { message: 'Eviction leak check: Should not be received!' });
+    await sleep(200);
+
+    if (!gotBroadcastAfterEviction) {
+      console.log("   ✅ Verified evicted Bob did NOT receive post-eviction room broadcasts");
+    } else {
+      throw new Error("Security leak: Evicted client still received room broadcasts!");
+    }
+
+    reconnectedClient.disconnect();
 
     console.log("\n==================================================");
     console.log("🎉 ALL REALTIME WEBSOCKET SUITE TESTS PASSED");

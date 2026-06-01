@@ -111,6 +111,15 @@ export const initRealtimeEventBridge = () => {
     await realtimeService.emitActivity(groupId, activityLog);
   });
 
+  // Capture membership revocation / leaving
+  eventEmitter.on("MEMBERSHIP_REVOKED", async (payload = {}) => {
+    const { userId, groupId } = payload;
+    console.log(`[Event Bridge] CAPTURE "MEMBERSHIP_REVOKED" | User: ${userId} | Group: ${groupId} -> Evicting active socket sessions...`);
+    
+    const { evictUserFromGroupRoom } = await import("../sockets/socket.gateway.js");
+    evictUserFromGroupRoom(userId, groupId);
+  });
+
   console.log("[Realtime Event Bridge] Binding complete");
 };
 

@@ -78,9 +78,30 @@ export const getGroupMembersController = async (req, res, next) => {
   }
 };
 
+/**
+ * Controller to handle Leaving a Group.
+ * Endpoint: POST /api/groups/:groupId/leave
+ */
+export const leaveGroupController = async (req, res, next) => {
+  try {
+    const { groupId } = req.params;
+    const userId = req.user.id;
+
+    await groupService.leaveGroupService({ userId, groupId });
+
+    res.status(200).json({
+      success: true,
+      message: "Successfully left the group",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   createGroupController,
   joinGroupController,
   getGroupController,
   getGroupMembersController,
+  leaveGroupController,
 };

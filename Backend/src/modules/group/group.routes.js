@@ -15,5 +15,6 @@ router.post('/join', groupController.joinGroupController);
 // Member-only operations (verified via isGroupMember middleware)
 router.get('/:groupId', isGroupMember, groupController.getGroupController);
 router.get('/:groupId/members', isGroupMember, groupController.getGroupMembersController);
+router.post('/:groupId/leave', isGroupMember, groupController.leaveGroupController);
 
 export default router;

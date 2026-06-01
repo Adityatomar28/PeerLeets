@@ -149,8 +149,67 @@ export const getGroupService = async (groupId) => {
   };
 };
 
+/**
+ * Service to leave a group.
+ * Safely removes group membership and streaks tracking in a transaction,
+ * and emits a MEMBERSHIP_REVOKED event for realtime socket eviction.
+ */
+export const leaveGroupService = async ({ userId, groupId }) => {
+  if (!groupId) {
+    throw createError("Group ID is required", 400);
+  }
+
+  const isMember = await groupRepository.isAlreadyMember(userId, groupId);
+  if (!isMember) {
+    throw createError("You are not a member of this group", 400);
+  }
+
+  // Creator cannot leave directly
+  const group = await groupRepository.findGroupById(groupId);
+  if (group && group.createdBy === userId) {
+    throw createError("Group admins/creators cannot leave their group. Delegate ownership or delete the group.", 400);
+  }
+
+  // Atomically delete membership and statistics
+  await prisma.$transaction(async (tx) => {
+    await tx.groupMember.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+    });
+
+    await tx.userGroupStats.delete({
+      where: {
+        userId_groupId: {
+          userId,
+          groupId,
+        },
+      },
+    });
+  });
+
+  // Emit event asynchronously
+  const { eventEmitter } = await import("../../services/event.service.js");
+  setImmediate(() => {
+    try {
+      eventEmitter.emit("MEMBERSHIP_REVOKED", {
+        userId,
+        groupId,
+      });
+    } catch (err) {
+      console.error("Error emitting membership revoked event:", err);
+    }
+  });
+
+  return true;
+};
+
 export default {
   createGroupService,
   joinGroupService,
   getGroupService,
+  leaveGroupService,
 };
