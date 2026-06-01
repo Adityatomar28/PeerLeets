@@ -1,5 +1,6 @@
 import prisma from "../../config/db.js";
 import activityRepository from "./activity.repository.js";
+import { eventEmitter } from "../../services/event.service.js";
 
 /**
  * Maps time in seconds to a friendly "in XX mins" format.
@@ -14,7 +15,7 @@ const formatTime = (seconds) => {
  * Creates an activity event log directly.
  */
 export const createActivityEvent = async ({ userId, groupId, challengeId, type, message, metadata }) => {
-  return activityRepository.createActivityLog({
+  const activityLog = await activityRepository.createActivityLog({
     userId,
     groupId,
     challengeId,
@@ -22,6 +23,19 @@ export const createActivityEvent = async ({ userId, groupId, challengeId, type, 
     message,
     metadata,
   });
+
+  setImmediate(() => {
+    try {
+      eventEmitter.emit('ACTIVITY_CREATED', {
+        groupId,
+        activityLog,
+      });
+    } catch (err) {
+      console.error("Error emitting activity event:", err);
+    }
+  });
+
+  return activityLog;
 };
 
 /**
@@ -52,6 +66,9 @@ export const processEvent = async ({ type, payload }) => {
     case 'CHALLENGE_ACTIVATED':
       message = `${userName} activated today's challenge slot 🧠`;
       break;
+    case 'CHALLENGE_CLOSED':
+      message = `Today's challenge slot was closed 🔒`;
+      break;
     case 'SOLVED':
       const timeStr = metadata?.timeTaken ? formatTime(metadata.timeTaken) : "";
       message = `${userName} solved today's challenge${timeStr} 🔥`;
@@ -65,17 +82,34 @@ export const processEvent = async ({ type, payload }) => {
     case 'FREEZE_USED':
       message = `${userName} used a streak freeze to protect their streak ❄️`;
       break;
+    case 'MISSED':
+      message = `${userName} missed today's challenge slot ❌`;
+      break;
+    case 'REMINDER_TRIGGERED':
+      message = metadata?.message || `${userName} was sent a solve reminder ⏱️`;
+      break;
     default:
       return; // Ignore unmatched events
   }
 
-  await activityRepository.createActivityLog({
+  const activityLog = await activityRepository.createActivityLog({
     userId,
     groupId,
     challengeId,
     type,
     message,
     metadata,
+  });
+
+  setImmediate(() => {
+    try {
+      eventEmitter.emit('ACTIVITY_CREATED', {
+        groupId,
+        activityLog,
+      });
+    } catch (err) {
+      console.error("Error emitting activity event:", err);
+    }
   });
 };
 

@@ -122,6 +122,7 @@ export const activateChallengeService = async ({ challengeId, userId, problemLin
     userId,
     groupId: challenge.groupId,
     challengeId,
+    problemLink: updatedChallenge.problemLink,
   });
 
   return updatedChallenge;
@@ -168,9 +169,24 @@ export const closeChallengeService = async ({ challengeId }) => {
     throw createError("Cannot close a challenge that has not been activated", 400);
   }
 
-  return challengeRepository.updateChallenge(challengeId, {
+  const updatedChallenge = await challengeRepository.updateChallenge(challengeId, {
     status: "CLOSED",
   });
+
+  // Emit event asynchronously
+  setImmediate(() => {
+    try {
+      eventEmitter.emit('CHALLENGE_CLOSED', {
+        challengeId,
+        groupId: challenge.groupId,
+        userId: challenge.createdBy || "",
+      });
+    } catch (err) {
+      console.error("Error emitting challenge closed event:", err);
+    }
+  });
+
+  return updatedChallenge;
 };
 
 /**
