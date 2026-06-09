@@ -182,8 +182,19 @@ export default function ProfilePage() {
             <CardHeader className="pb-2 flex flex-row items-center justify-between">
               <div>
                 <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">Total Freezes Left</span>
-                <CardTitle className="text-2xl font-black mt-1 text-purple-400 font-mono flex items-baseline gap-1">
-                  {totalFreezes} <span className="text-xs text-text-secondary font-sans font-normal">available</span>
+                <CardTitle className="text-2xl font-black mt-1 text-purple-400 font-mono flex items-center gap-2.5">
+                  <div className="flex items-center gap-1 group/tooltip relative cursor-help" title="Missing a day consumes one freeze and protects your streak.">
+                    {Array.from({ length: Math.max(2, totalFreezes) }).map((_, i) => (
+                      <span key={i} className="text-sm">
+                        {i < totalFreezes ? '❄️' : '⚫'}
+                      </span>
+                    ))}
+                    {/* Tooltip */}
+                    <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-black border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
+                      Missing a day consumes one freeze and protects your streak.
+                    </span>
+                  </div>
+                  <span className="text-xs text-text-secondary font-sans font-normal">({totalFreezes} left)</span>
                 </CardTitle>
               </div>
               <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/15 flex items-center justify-center shrink-0">

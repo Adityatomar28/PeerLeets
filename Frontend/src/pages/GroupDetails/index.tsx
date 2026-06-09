@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Flame, Snowflake, Users, ExternalLink, Calendar, CheckSquare, Clock, 
   Copy, LogOut, AlertTriangle, AlertCircle, CheckCircle2, ChevronRight, Play, 
-  Pause, RotateCcw, PlayCircle, Trophy, Activity, UserCheck
+  Pause, RotateCcw, PlayCircle, Trophy, Activity, UserCheck, Shield, Sparkles
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -90,6 +90,14 @@ interface TimerData {
   state: 'idle' | 'running' | 'paused';
   startTime: number;
   elapsed: number;
+}
+
+interface GroupStats {
+  id: string;
+  currentStreak: number;
+  longestStreak: number;
+  totalSolved: number;
+  freezeCount: number;
 }
 
 // Schemas
@@ -201,6 +209,41 @@ export default function GroupRoomPage() {
     enabled: !!groupId,
   });
 
+  // Query user stats inside this group specifically
+  const { data: userStats } = useQuery<GroupStats>({
+    queryKey: ['userGroupStats', groupId, user?.id],
+    queryFn: () => apiClient.get<GroupStats>(`/api/groups/${groupId}/users/${user?.id}/stats`),
+    enabled: !!groupId && !!user?.id,
+  });
+
+  // ----------------------------------------------------
+  // WAITING STATE DEADLINE COUNTDOWN
+  // ----------------------------------------------------
+  const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const diff = endOfDay.getTime() - now.getTime();
+      if (diff <= 0) {
+        setCountdown({ hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      
+      const hours = Math.floor(diff / 3600000);
+      const minutes = Math.floor((diff % 3600000) / 60000);
+      const seconds = Math.floor((diff % 60000) / 1000);
+      setCountdown({ hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ----------------------------------------------------
   // LOCAL TIMER HOOK & STORAGE HANDLER
   // ----------------------------------------------------
@@ -251,7 +294,6 @@ export default function GroupRoomPage() {
     return () => clearInterval(interval);
   }, [timer]);
 
-  // Save timer data helper
   const saveTimerState = (next: TimerData) => {
     setTimer(next);
     if (timerKey) {
@@ -281,8 +323,7 @@ export default function GroupRoomPage() {
     saveTimerState({ state: 'idle', startTime: 0, elapsed: 0 });
   };
 
-  // Format Timer
-  const formatTime = (totalSeconds: number) => {
+  const formatStopwatch = (totalSeconds: number) => {
     const hrs = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
@@ -292,6 +333,47 @@ export default function GroupRoomPage() {
     parts.push(String(secs).padStart(2, '0'));
     return parts.join(':');
   };
+
+  // ----------------------------------------------------
+  // CLOSED STATE ANALYTICS CALCULATOR
+  // ----------------------------------------------------
+  const analytics = useMemo(() => {
+    if (!grid) return null;
+
+    const totalSolvers = grid.solved.length;
+    const totalMembers = grid.solved.length + grid.pending.length + grid.missed.length;
+    const completionRate = totalMembers > 0 ? Math.round((totalSolvers / totalMembers) * 100) : 0;
+
+    const solvedWithTimes = grid.solved.filter(s => s.timeTaken !== undefined && s.timeTaken !== null && s.timeTaken > 0);
+    const times = solvedWithTimes.map(s => s.timeTaken as number);
+    
+    const averageSolveTime = times.length > 0 
+      ? Math.round(times.reduce((acc, t) => acc + t, 0) / times.length / 60)
+      : 0;
+
+    let fastestSolver: ParticipationUser | null = null;
+    let slowestSolver: ParticipationUser | null = null;
+
+    if (solvedWithTimes.length > 0) {
+      fastestSolver = solvedWithTimes.reduce((min, curr) => 
+        (curr.timeTaken || 0) < (min.timeTaken || 0) ? curr : min
+      , solvedWithTimes[0]);
+
+      slowestSolver = solvedWithTimes.reduce((max, curr) => 
+        (curr.timeTaken || 0) > (max.timeTaken || 0) ? curr : max
+      , solvedWithTimes[0]);
+    }
+
+    return {
+      completionRate,
+      totalSolvers,
+      averageSolveTime,
+      fastestSolver,
+      slowestSolver,
+      firstSolver: grid.firstSolver,
+      missedCount: grid.missed.length,
+    };
+  }, [grid]);
 
   // ----------------------------------------------------
   // LEADERBOARD RANK SHIFTS UPDATER
@@ -346,6 +428,7 @@ export default function GroupRoomPage() {
       queryClient.invalidateQueries({ queryKey: ['todayChallenge', groupId] });
       queryClient.invalidateQueries({ queryKey: ['groupActivity', groupId] });
       queryClient.invalidateQueries({ queryKey: ['groupLeaderboard', groupId] });
+      queryClient.invalidateQueries({ queryKey: ['userGroupStats', groupId] });
     });
 
     socketService.on('solve:success', (data: any) => {
@@ -353,6 +436,7 @@ export default function GroupRoomPage() {
       queryClient.invalidateQueries({ queryKey: ['groupLeaderboard', groupId] });
       queryClient.invalidateQueries({ queryKey: ['groupActivity', groupId] });
       queryClient.invalidateQueries({ queryKey: ['userGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['userGroupStats', groupId] });
       if (data?.userId) setActiveUsers(prev => new Set(prev).add(data.userId));
     });
 
@@ -436,6 +520,7 @@ export default function GroupRoomPage() {
       queryClient.invalidateQueries({ queryKey: ['groupLeaderboard', groupId] });
       queryClient.invalidateQueries({ queryKey: ['groupActivity', groupId] });
       queryClient.invalidateQueries({ queryKey: ['userGroups'] });
+      queryClient.invalidateQueries({ queryKey: ['userGroupStats', groupId] });
       setIsSolveOpen(false);
       handleResetTimer(); // Reset stopwatch on completion
       toast.success('Solution logged! Consistency multiplier updated 🔥');
@@ -609,36 +694,36 @@ export default function GroupRoomPage() {
               <CardContent className="p-6">
                 {/* STATE 1: WAITING */}
                 {challenge.status === 'WAITING' && (
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                        <Clock className="w-5 h-5 text-accent-amber" />
-                      </div>
-                      <div>
-                        <h4 className="font-display font-extrabold text-sm text-white">Awaiting problem activation</h4>
-                        <p className="font-sans text-xs text-text-secondary mt-1">
-                          Today's challenge slot is created. Challenger <strong className="text-white">{currentChallengerName}</strong> is assigned to select and activate the problem.
-                        </p>
-                      </div>
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    {/* SVG friendly illustration */}
+                    <div className="w-16 h-16 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 relative">
+                      <Clock className="w-7 h-7 text-text-secondary animate-pulse" />
+                      <div className="absolute inset-0 rounded-2xl border border-indigo-500/25 border-dashed animate-spin" style={{ animationDuration: '8s' }} />
                     </div>
 
-                    {isUserChallenger ? (
-                      <div className="p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/15 mt-4">
-                        <h5 className="font-display font-bold text-xs text-white mb-2 flex items-center gap-1.5">
-                          <AlertTriangle className="w-4.5 h-4.5 text-indigo-400" /> You are the challenger today!
-                        </h5>
-                        <p className="font-sans text-[11px] text-text-secondary mb-4 leading-relaxed">
-                          Pick a coding task (from LeetCode, GFG, etc.) and activate it to assign it to your squad members.
+                    <h3 className="font-display font-extrabold text-base text-white mb-1">Waiting For Today's Challenge</h3>
+                    <p className="font-sans text-xs text-text-secondary max-w-sm mb-4 leading-relaxed">
+                      Today's assigned challenger is <strong className="text-white">{currentChallengerName}</strong>. 
+                      Once they post the coding problem, the squad room will activate.
+                    </p>
+
+                    {/* Countdown indicator */}
+                    <div className="px-4 py-2.5 rounded-xl bg-white/[0.01] border border-white/5 font-mono text-xs text-text-secondary mb-6 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                      <span>Cutoff Countdown: <strong>{String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s</strong></span>
+                    </div>
+
+                    {isUserChallenger && (
+                      <div className="p-5 rounded-2xl bg-[#121620]/50 border border-indigo-500/15 max-w-md w-full">
+                        <h4 className="font-display font-bold text-xs text-white mb-1.5 flex items-center justify-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-indigo-400" /> You are the challenger today!
+                        </h4>
+                        <p className="font-sans text-[11px] text-text-secondary mb-4 leading-normal">
+                          Submit a LeetCode problem link to activate today's challenge slot for your team.
                         </p>
-                        <Button size="sm" onClick={() => setIsActivateOpen(true)}>
+                        <Button size="sm" onClick={() => setIsActivateOpen(true)} className="w-full">
                           Post Today's Challenge
                         </Button>
-                      </div>
-                    ) : (
-                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 mt-4 text-center">
-                        <p className="font-mono text-[10px] text-text-muted italic">
-                          Waiting for {currentChallengerName} to activate the coding problem...
-                        </p>
                       </div>
                     )}
                   </div>
@@ -687,7 +772,7 @@ export default function GroupRoomPage() {
                           <div>
                             <span className="text-[9px] font-mono text-text-muted uppercase block">Stopwatch Timer</span>
                             <span className="font-mono text-xl font-bold text-white tracking-wider">
-                              {formatTime(elapsedDisplay)}
+                              {formatStopwatch(elapsedDisplay)}
                             </span>
                           </div>
                         </div>
@@ -735,26 +820,143 @@ export default function GroupRoomPage() {
                   </div>
                 )}
 
-                {/* STATE 3: CLOSED */}
-                {challenge.status === 'CLOSED' && (
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-accent-rose/10 border border-accent-rose/25 flex items-center justify-center shrink-0">
-                        <AlertCircle className="w-5 h-5 text-accent-rose" />
-                      </div>
+                {/* STATE 3: CLOSED & CHALLENGE ANALYTICS */}
+                {challenge.status === 'CLOSED' && analytics && (
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle/50 pb-4">
                       <div>
-                        <h4 className="font-display font-extrabold text-sm text-white">Challenge closed</h4>
-                        <p className="font-sans text-xs text-text-secondary mt-1 leading-relaxed">
-                          Today's slot is closed. Streaks have been adjusted and inactive users have consumed a streak freeze or had their streak reset.
+                        <h4 className="font-display font-extrabold text-sm text-white flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5 text-accent-rose" /> Challenge Closed
+                        </h4>
+                        <p className="font-sans text-xs text-text-secondary mt-1">
+                          cutoff limit reached. Stats are locked.
                         </p>
                       </div>
-                    </div>
-                    {grid?.firstSolver && (
-                      <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/10 flex items-center justify-between text-xs mt-2">
-                        <span className="text-text-secondary">🏆 First Solver of the day:</span>
-                        <strong className="text-accent-amber font-mono font-extrabold">{grid.firstSolver.name}</strong>
+
+                      <div className="flex items-center gap-2">
+                        {parsedChallenge?.url && (
+                          <a href={parsedChallenge.url} target="_blank" rel="noreferrer">
+                            <Button size="sm" variant="outline">
+                              View Challenge
+                            </Button>
+                          </a>
+                        )}
+                        <a href="#matrix">
+                          <Button size="sm">
+                            View Results
+                          </Button>
+                        </a>
                       </div>
-                    )}
+                    </div>
+
+                    {/* Analytics Metrics Cards Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {/* Completion Rate */}
+                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                        <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Completion</span>
+                        <span className="text-xl font-mono font-bold text-white block mt-1">
+                          {analytics.completionRate}%
+                        </span>
+                      </div>
+
+                      {/* Total Solvers */}
+                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                        <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Total Solvers</span>
+                        <span className="text-xl font-mono font-bold text-accent-emerald block mt-1">
+                          {analytics.totalSolvers} solved
+                        </span>
+                      </div>
+
+                      {/* Average Solve Time */}
+                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                        <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Avg Duration</span>
+                        <span className="text-xl font-mono font-bold text-accent-indigo block mt-1">
+                          {analytics.averageSolveTime} min
+                        </span>
+                      </div>
+
+                      {/* First Solver */}
+                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                        <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">First Solver</span>
+                        <span className="text-xs font-sans font-bold text-accent-amber block mt-2.5 truncate">
+                          🏆 {analytics.firstSolver ? analytics.firstSolver.name : 'None'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Detailed Speeds & Misses Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Solver Speeds */}
+                      <div className="p-4 rounded-xl bg-white/[0.005] border border-white/5 text-left text-xs space-y-2.5">
+                        <h5 className="font-mono text-[9px] text-text-muted uppercase tracking-wider">Solve Speeds</h5>
+                        <div className="flex justify-between items-center">
+                          <span className="text-text-secondary">Fastest Solver:</span>
+                          <span className="font-semibold text-white font-mono">
+                            {analytics.fastestSolver 
+                              ? `${analytics.fastestSolver.name} (${Math.round((analytics.fastestSolver.timeTaken || 0) / 60)}m)` 
+                              : '-'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-text-secondary">Slowest Solver:</span>
+                          <span className="font-semibold text-white font-mono">
+                            {analytics.slowestSolver 
+                              ? `${analytics.slowestSolver.name} (${Math.round((analytics.slowestSolver.timeTaken || 0) / 60)}m)` 
+                              : '-'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Inactivity & Freeze Consumed */}
+                      <div className="p-4 rounded-xl bg-white/[0.005] border border-white/5 text-left text-xs space-y-2.5">
+                        <h5 className="font-mono text-[9px] text-text-muted uppercase tracking-wider">Streak Impact</h5>
+                        <div className="flex justify-between items-center">
+                          <span className="text-text-secondary">Missed Users:</span>
+                          <span className="font-semibold text-accent-rose font-mono">
+                            {analytics.missedCount} members
+                          </span>
+                        </div>
+                        {grid?.missed.length > 0 && (
+                          <p className="text-[10px] text-text-secondary leading-normal">
+                            Streak freeze consumed for: {grid.missed.map(m => m.name).join(', ')}.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Visual stacked bar chart representation */}
+                    <div className="space-y-1.5 text-left">
+                      <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Participation Allocation</span>
+                      <div className="w-full h-3 rounded-full bg-white/[0.03] overflow-hidden flex">
+                        {grid.solved.length > 0 && (
+                          <div 
+                            className="bg-accent-emerald h-full" 
+                            style={{ width: `${(grid.solved.length / Math.max(1, grid.solved.length + grid.pending.length + grid.missed.length)) * 100}%` }}
+                            title={`Solved: ${grid.solved.length}`}
+                          />
+                        )}
+                        {grid.pending.length > 0 && (
+                          <div 
+                            className="bg-accent-amber h-full" 
+                            style={{ width: `${(grid.pending.length / Math.max(1, grid.solved.length + grid.pending.length + grid.missed.length)) * 100}%` }}
+                            title={`Pending: ${grid.pending.length}`}
+                          />
+                        )}
+                        {grid.missed.length > 0 && (
+                          <div 
+                            className="bg-purple-500 h-full" 
+                            style={{ width: `${(grid.missed.length / Math.max(1, grid.solved.length + grid.pending.length + grid.missed.length)) * 100}%` }}
+                            title={`Missed: ${grid.missed.length}`}
+                          />
+                        )}
+                      </div>
+                      <div className="flex justify-start gap-4 text-[9px] font-mono text-text-muted">
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-accent-emerald" /> Solved: {grid.solved.length}</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-accent-amber" /> Pending: {grid.pending.length}</span>
+                        <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Missed: {grid.missed.length}</span>
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -762,99 +964,101 @@ export default function GroupRoomPage() {
           )}
 
           {/* 3. REALTIME PARTICIPATION GRID */}
-          {gridLoading ? (
-            <Skeleton className="h-56 w-full" />
-          ) : grid ? (
-            <Card className="bg-background-surface border-border-subtle text-left">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div>
-                    <CardTitle className="text-white font-extrabold flex items-center gap-2 text-lg">
-                      Participation Matrix
-                    </CardTitle>
-                    <CardDescription>Real-time status updates of active members</CardDescription>
+          <div id="matrix">
+            {gridLoading ? (
+              <Skeleton className="h-56 w-full" />
+            ) : grid ? (
+              <Card className="bg-background-surface border-border-subtle text-left">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <CardTitle className="text-white font-extrabold flex items-center gap-2 text-lg">
+                        Participation Matrix
+                      </CardTitle>
+                      <CardDescription>Real-time status updates of active members</CardDescription>
+                    </div>
+                    {grid.firstSolver && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-semibold text-accent-amber">
+                        <Trophy className="w-3.5 h-3.5 fill-current" /> First Solver: {grid.firstSolver.name}
+                      </div>
+                    )}
                   </div>
-                  {grid.firstSolver && (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-semibold text-accent-amber">
-                      <Trophy className="w-3.5 h-3.5 fill-current" /> First Solver: {grid.firstSolver.name}
-                    </div>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Solved List */}
-                <div className="space-y-2.5">
-                  <span className="text-[10px] font-mono text-accent-emerald font-bold tracking-wider uppercase flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse" /> Solved
-                  </span>
-                  {grid.solved.length === 0 ? (
-                    <p className="font-sans text-xs text-text-muted italic pl-3">No solutions solved yet today.</p>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
-                      {grid.solved.map((u) => (
-                        <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.01] border border-white/5">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center font-bold text-[10px] text-accent-emerald uppercase">
-                              {u.name[0]}
-                            </div>
-                            <span className="font-sans text-xs text-white font-semibold">{u.name}</span>
-                          </div>
-                          <span className="font-mono text-[10px] text-text-secondary">
-                            {u.timeTaken ? `${Math.round(u.timeTaken / 60)}m taken` : 'solved'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Pending List */}
-                <div className="space-y-2.5">
-                  <span className="text-[10px] font-mono text-accent-amber font-bold tracking-wider uppercase flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-amber animate-pulse" /> Pending
-                  </span>
-                  {grid.pending.length === 0 ? (
-                    <p className="font-sans text-xs text-text-muted italic pl-3">All members have completed today's challenge!</p>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
-                      {grid.pending.map((u) => (
-                        <div key={u.userId} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.005] border border-white/5">
-                          <div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-bold text-[10px] text-accent-amber uppercase">
-                            {u.name[0]}
-                          </div>
-                          <span className="font-sans text-xs text-text-secondary">{u.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Missed / Freezes List */}
-                {grid.missed.length > 0 && (
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Solved List */}
                   <div className="space-y-2.5">
-                    <span className="text-[10px] font-mono text-purple-400 font-bold tracking-wider uppercase flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Missed / Freezes Used
+                    <span className="text-[10px] font-mono text-accent-emerald font-bold tracking-wider uppercase flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald animate-pulse" /> Solved
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
-                      {grid.missed.map((u) => (
-                        <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-[#1F192E]/30 border border-purple-500/10">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-bold text-[10px] text-purple-300 uppercase">
+                    {grid.solved.length === 0 ? (
+                      <p className="font-sans text-xs text-text-muted italic pl-3">No solutions solved yet today.</p>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
+                        {grid.solved.map((u) => (
+                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.01] border border-white/5">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center font-bold text-[10px] text-accent-emerald uppercase">
+                                {u.name[0]}
+                              </div>
+                              <span className="font-sans text-xs text-white font-semibold">{u.name}</span>
+                            </div>
+                            <span className="font-mono text-[10px] text-text-secondary">
+                              {u.timeTaken ? `${Math.round(u.timeTaken / 60)}m taken` : 'solved'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pending List */}
+                  <div className="space-y-2.5">
+                    <span className="text-[10px] font-mono text-accent-amber font-bold tracking-wider uppercase flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-amber animate-pulse" /> Pending
+                    </span>
+                    {grid.pending.length === 0 ? (
+                      <p className="font-sans text-xs text-text-muted italic pl-3">All members have completed today's challenge!</p>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
+                        {grid.pending.map((u) => (
+                          <div key={u.userId} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.005] border border-white/5">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-bold text-[10px] text-accent-amber uppercase">
                               {u.name[0]}
                             </div>
                             <span className="font-sans text-xs text-text-secondary">{u.name}</span>
                           </div>
-                          <span className="font-mono text-[9px] text-purple-300 flex items-center gap-1">
-                            <Snowflake className="w-3.5 h-3.5" /> Freeze consumed
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ) : null}
+
+                  {/* Missed / Freezes List */}
+                  {grid.missed.length > 0 && (
+                    <div className="space-y-2.5">
+                      <span className="text-[10px] font-mono text-purple-400 font-bold tracking-wider uppercase flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" /> Missed / Freezes Used
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
+                        {grid.missed.map((u) => (
+                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-[#1F192E]/30 border border-purple-500/10">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-bold text-[10px] text-purple-300 uppercase">
+                                {u.name[0]}
+                              </div>
+                              <span className="font-sans text-xs text-text-secondary">{u.name}</span>
+                            </div>
+                            <span className="font-mono text-[9px] text-purple-300 flex items-center gap-1">
+                              <Snowflake className="w-3.5 h-3.5" /> Freeze consumed
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : null}
+          </div>
 
           {/* 6. CHALLENGE HISTORY PREVIEW */}
           {historyLoading ? (
@@ -903,6 +1107,48 @@ export default function GroupRoomPage() {
 
         {/* Right Column: Leaderboard, Activity Feed, Members Panel */}
         <div className="lg:col-span-4 space-y-8">
+
+          {/* USER'S GROUP STATS & FREEZES CARD */}
+          {userStats && (
+            <Card className="bg-background-surface border-border-subtle">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-white font-extrabold text-sm flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-indigo-400" /> Your Consistency stats
+                </CardTitle>
+                <CardDescription>Streaks and freezes left in this group</CardDescription>
+              </CardHeader>
+              <CardContent className="pb-4 border-b border-border-subtle/50">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-[9px] font-mono text-text-muted uppercase block">Active Streak</span>
+                    <span className="font-mono text-base font-bold text-orange-400 flex items-center gap-1 mt-1">
+                      <Flame className="w-4 h-4 fill-current" /> {userStats.currentStreak}d
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-mono text-text-muted uppercase block">Longest Streak</span>
+                    <span className="font-mono text-base font-bold text-white mt-1">
+                      {userStats.longestStreak}d
+                    </span>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="px-6 py-3.5 bg-[#121620]/30 flex justify-between items-center text-xs">
+                <span className="text-text-secondary font-medium font-mono text-[9px] uppercase">Streak Freezes</span>
+                <div className="flex items-center gap-1 group/tooltip relative cursor-help" title="Missing a day consumes one freeze and protects your streak.">
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <span key={i} className="text-xs">
+                      {i < userStats.freezeCount ? '❄️' : '⚫'}
+                    </span>
+                  ))}
+                  {/* Custom Tooltip */}
+                  <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-black border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
+                    Missing a day consumes one freeze and protects your streak.
+                  </span>
+                </div>
+              </div>
+            </Card>
+          )}
           
           {/* 4. SQUAD LEADERBOARD */}
           {boardLoading ? (

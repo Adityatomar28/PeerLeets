@@ -1,15 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { useSocketStore } from '../../store/socket.store';
+import { useNotificationStore } from '../../store/notification.store';
 import { socketService } from '../../services/socket/socket.service';
-import { LayoutDashboard, User, LogOut, Users, Wifi, WifiOff, RefreshCw } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LayoutDashboard, User, LogOut, Users, Wifi, WifiOff, RefreshCw, Bell, Trash2, CheckCheck } from 'lucide-react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, token, clearAuth } = useAuthStore();
   const { status } = useSocketStore();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { notifications, markAllRead, clearAll, getUnreadCount } = useNotificationStore();
+  const unreadCount = getUnreadCount();
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Handle socket connection lifecycle
   useEffect(() => {
@@ -99,29 +117,121 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Main Workspace Area */}
       <div className="flex-1 flex flex-col overflow-y-auto min-h-0 relative z-10">
         {/* Global Connection & Status Header */}
-        <header className="h-16 border-b border-border-subtle px-6 md:px-8 flex items-center justify-end shrink-0 bg-background-base/50 backdrop-blur-md">
-          {/* Connection status pills */}
-          <div className="flex items-center gap-3">
-            {status === 'connected' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-semibold text-accent-emerald">
-                <Wifi className="w-3.5 h-3.5" /> Synchronized
-              </span>
-            )}
-            {status === 'connecting' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-mono font-semibold text-accent-indigo pulsing-glow">
-                <RefreshCw className="w-3 h-3 animate-spin" /> Synchronizing...
-              </span>
-            )}
-            {status === 'reconnecting' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono font-semibold text-accent-amber pulsing-glow">
-                <RefreshCw className="w-3 h-3 animate-spin" /> Reconnecting...
-              </span>
-            )}
-            {status === 'offline' && (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-rose/10 border border-accent-rose/25 text-[10px] font-mono font-semibold text-accent-rose">
-                <WifiOff className="w-3.5 h-3.5" /> Disconnected
-              </span>
-            )}
+        <header className="h-16 border-b border-border-subtle px-6 md:px-8 flex items-center justify-between shrink-0 bg-background-base/50 backdrop-blur-md">
+          <div className="text-[10px] font-mono font-bold tracking-wider uppercase text-text-muted">
+            {location.pathname.startsWith('/groups') ? 'Squad Room' : location.pathname === '/profile' ? 'Profile Details' : 'Dashboard'}
+          </div>
+
+          <div className="flex items-center gap-4">
+            {/* Connection status pills */}
+            <div className="flex items-center gap-3">
+              {status === 'connected' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-semibold text-accent-emerald">
+                  <Wifi className="w-3.5 h-3.5" /> Synchronized
+                </span>
+              )}
+              {status === 'connecting' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-mono font-semibold text-accent-indigo pulsing-glow">
+                  <RefreshCw className="w-3 h-3 animate-spin" /> Synchronizing...
+                </span>
+              )}
+              {status === 'reconnecting' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-mono font-semibold text-accent-amber pulsing-glow">
+                  <RefreshCw className="w-3 h-3 animate-spin" /> Reconnecting...
+                </span>
+              )}
+              {status === 'offline' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-rose/10 border border-accent-rose/25 text-[10px] font-mono font-semibold text-accent-rose">
+                  <WifiOff className="w-3.5 h-3.5" /> Disconnected
+                </span>
+              )}
+            </div>
+
+            {/* Notification Bell Icon */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="relative p-2 rounded-lg bg-background-surface hover:bg-white/5 border border-border-subtle hover:border-white/10 text-text-secondary hover:text-white transition-all cursor-pointer"
+                style={{ background: 'none' }}
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-accent-rose text-white text-[9px] font-bold flex items-center justify-center font-mono">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown Menu */}
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-80 bg-background-surface border border-border-subtle rounded-xl shadow-glow overflow-hidden z-50 text-left"
+                  >
+                    <div className="p-3 border-b border-border-subtle flex justify-between items-center bg-[#121620]">
+                      <span className="font-display font-extrabold text-xs text-white">Notifications</span>
+                      {notifications.length > 0 && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={markAllRead}
+                            className="text-[10px] font-semibold text-indigo-400 hover:text-white flex items-center gap-0.5 cursor-pointer"
+                            title="Mark all as read"
+                            style={{ background: 'none', border: 'none' }}
+                          >
+                            <CheckCheck className="w-3.5 h-3.5" /> Read
+                          </button>
+                          <span className="text-text-muted">|</span>
+                          <button
+                            onClick={clearAll}
+                            className="text-[10px] font-semibold text-text-secondary hover:text-accent-rose flex items-center gap-0.5 cursor-pointer"
+                            title="Clear all"
+                            style={{ background: 'none', border: 'none' }}
+                          >
+                            <Trash2 className="w-3 h-3" /> Clear
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="max-h-64 overflow-y-auto divide-y divide-border-subtle/30 no-scrollbar">
+                      {notifications.length === 0 ? (
+                        <div className="py-8 text-center text-xs text-text-muted italic">
+                          No notifications yet.
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div
+                            key={n.id}
+                            className={`p-3 transition-colors ${
+                              n.read ? 'bg-transparent' : 'bg-indigo-500/[0.03]'
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-2">
+                              <h5 className="font-sans font-bold text-xs text-white leading-tight">
+                                {n.title}
+                              </h5>
+                              {!n.read && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0 mt-1" />
+                              )}
+                            </div>
+                            <p className="font-sans text-[11px] text-text-secondary mt-1 leading-relaxed">
+                              {n.message}
+                            </p>
+                            <span className="font-mono text-[9px] text-text-muted block mt-1.5">
+                              {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </header>
 

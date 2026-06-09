@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { useSocketStore } from '../../store/socket.store';
+import { useNotificationStore } from '../../store/notification.store';
 import { toast } from 'sonner';
 
 class SocketService {
@@ -50,23 +51,41 @@ class SocketService {
       useSocketStore.getState().setStatus('reconnecting');
     });
 
-    // Listen for global push notifications and route them to Sonner toasts
+    // Listen for global push notifications and route them to Sonner toasts & Notifications Store
     this.socket.on('challenge:activated', (data: any) => {
-      toast.info(`New Challenge Activated! 🧠`, {
-        description: `Link: ${data.problemLink || 'View details'}`
-      });
+      toast.info(`New Challenge Activated! 🧠`);
+      useNotificationStore.getState().addNotification(
+        'Challenge Activated 🧠',
+        `A new daily coding challenge has been posted for your squad.`,
+        'challenge:activated'
+      );
     });
 
     this.socket.on('solve:first', (data: any) => {
-      toast.success(`First Solver Alert! 🏆`, {
-        description: `${data.userName || data.name || 'A user'} solved first!`
-      });
+      toast.success(`First Solver Alert! 🏆`);
+      useNotificationStore.getState().addNotification(
+        'First Solver Alert 🏆',
+        `${data.userName || data.name || 'A squad member'} was the first to solve today's challenge!`,
+        'solve:first'
+      );
     });
 
     this.socket.on('streak:freeze', (data: any) => {
-      toast.info(`Streak Freeze Used! ❄️`, {
-        description: `${data.userName || data.name || 'A user'} protected their streak.`
-      });
+      toast.info(`Streak Freeze Used! ❄️`);
+      useNotificationStore.getState().addNotification(
+        'Streak Freeze Used ❄️',
+        `${data.userName || data.name || 'A squad member'} used a streak freeze to protect their consistency multiplier.`,
+        'streak:freeze'
+      );
+    });
+
+    this.socket.on('challenge:closed', () => {
+      toast.info(`Challenge Closed 🔒`);
+      useNotificationStore.getState().addNotification(
+        'Challenge Closed 🔒',
+        `Today's challenge cutoff has been reached. Ranks and streaks are locked.`,
+        'challenge:closed'
+      );
     });
 
     this.socket.on('socket:error', (error: { message: string; code: string }) => {

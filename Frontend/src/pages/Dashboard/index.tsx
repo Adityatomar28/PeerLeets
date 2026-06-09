@@ -235,9 +235,17 @@ export default function Dashboard() {
                     </div>
                     <div className="flex flex-col gap-0.5">
                       <span className="text-[9px] font-mono text-text-muted uppercase">Freezes left</span>
-                      <span className="font-mono text-sm font-bold text-purple-400 flex items-center gap-0.5">
-                        <Snowflake className="w-3.5 h-3.5" /> {group.stats.freezeCount}
-                      </span>
+                      <div className="flex items-center gap-1 group/tooltip relative cursor-help mt-1 font-mono text-sm font-bold text-purple-400">
+                        {Array.from({ length: 2 }).map((_, i) => (
+                          <span key={i} className="text-xs">
+                            {i < group.stats.freezeCount ? '❄️' : '⚫'}
+                          </span>
+                        ))}
+                        {/* Custom Tooltip */}
+                        <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-black border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
+                          Missing a day consumes one freeze and protects your streak.
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
