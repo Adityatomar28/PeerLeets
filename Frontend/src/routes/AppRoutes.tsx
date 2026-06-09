@@ -10,6 +10,8 @@ import Signup from '../pages/Signup';
 import Dashboard from '../pages/Dashboard';
 import GroupDetails from '../pages/GroupDetails';
 import Profile from '../pages/Profile';
+import GroupHistory from '../pages/GroupHistory';
+import GroupMembers from '../pages/GroupMembers';
 import NotFound from '../pages/NotFound';
 
 export default function AppRoutes() {
@@ -60,6 +62,26 @@ export default function AppRoutes() {
           <AuthGuard>
             <AppLayout>
               <GroupDetails />
+            </AppLayout>
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/groups/:groupId/history"
+        element={
+          <AuthGuard>
+            <AppLayout>
+              <GroupHistory />
+            </AppLayout>
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/groups/:groupId/members"
+        element={
+          <AuthGuard>
+            <AppLayout>
+              <GroupMembers />
             </AppLayout>
           </AuthGuard>
         }

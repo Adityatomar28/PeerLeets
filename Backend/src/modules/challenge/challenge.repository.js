@@ -112,6 +112,22 @@ export const getChallengeHistory = async (groupId, skip = 0, take = 10) => {
           email: true,
         },
       },
+      submissions: {
+        select: {
+          id: true,
+          userId: true,
+          solvedAt: true,
+          timeTaken: true,
+          user: {
+            select: {
+              name: true,
+            },
+          },
+        },
+        orderBy: {
+          solvedAt: "asc",
+        },
+      },
     },
   });
 };
