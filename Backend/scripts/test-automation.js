@@ -10,10 +10,10 @@ import activityQueue from "../src/queues/activity.queue.js";
 import { initEventListeners } from "../src/services/event.service.js";
 
 // Make sure workers are imported and listening
-import "../src/workers/challenge.worker.js";
-import "../src/workers/streak.worker.js";
-import "../src/workers/reminder.worker.js";
-import "../src/workers/activity.worker.js";
+import challengeWorker from "../src/workers/challenge.worker.js";
+import streakWorker from "../src/workers/streak.worker.js";
+import reminderWorker from "../src/workers/reminder.worker.js";
+import activityWorker from "../src/workers/activity.worker.js";
 
 async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -270,6 +270,26 @@ async function runAutomationTests() {
     console.error("❌ TEST RUN ENCOUNTERED AN ERROR:", error);
     throw error;
   } finally {
+    // ----------------------------------------------------
+    // SHUTDOWN WORKERS AND QUEUES TO PREVENT CONCURRENT DB OPERATIONS
+    // ----------------------------------------------------
+    console.log("Shutting down BullMQ workers and queues...");
+    try {
+      await Promise.all([
+        challengeWorker.close(),
+        streakWorker.close(),
+        reminderWorker.close(),
+        activityWorker.close(),
+        challengeQueue.close(),
+        streakQueue.close(),
+        reminderQueue.close(),
+        activityQueue.close(),
+      ]);
+      console.log("✅ Workers and queues shut down successfully");
+    } catch (shutdownErr) {
+      console.error("Error shutting down workers/queues:", shutdownErr.message);
+    }
+
     // ----------------------------------------------------
     // CLEANUP
     // ----------------------------------------------------

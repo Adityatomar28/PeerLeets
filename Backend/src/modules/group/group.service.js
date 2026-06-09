@@ -207,9 +207,53 @@ export const leaveGroupService = async ({ userId, groupId }) => {
   return true;
 };
 
+/**
+ * Service to fetch all groups a user has joined along with their stats.
+ * @param {string} userId
+ * @returns {Promise<Array>} List of groups with nested userGroupStats
+ */
+export const getUserGroupsService = async (userId) => {
+  if (!userId) {
+    throw createError("User ID is required", 400);
+  }
+
+  const stats = await prisma.userGroupStats.findMany({
+    where: { userId },
+    include: {
+      group: {
+        include: {
+          _count: {
+            select: { members: true }
+          }
+        }
+      }
+    },
+    orderBy: {
+      createdAt: "desc"
+    }
+  });
+
+  return stats.map(s => ({
+    id: s.group.id,
+    name: s.group.name,
+    inviteCode: s.group.inviteCode,
+    memberCount: s.group._count.members,
+    stats: {
+      currentStreak: s.currentStreak,
+      longestStreak: s.longestStreak,
+      totalSolved: s.totalSolved,
+      last7DaysSolved: s.last7DaysSolved,
+      last30DaysSolved: s.last30DaysSolved,
+      freezeCount: s.freezeCount,
+      lastSolvedDate: s.lastSolvedDate,
+    }
+  }));
+};
+
 export default {
   createGroupService,
   joinGroupService,
   getGroupService,
   leaveGroupService,
+  getUserGroupsService,
 };

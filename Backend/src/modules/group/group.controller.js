@@ -98,10 +98,29 @@ export const leaveGroupController = async (req, res, next) => {
   }
 };
 
+/**
+ * Controller to handle Fetching All Groups for the authenticated User.
+ * Endpoint: GET /api/groups
+ */
+export const getUserGroupsController = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const data = await groupService.getUserGroupsService(userId);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   createGroupController,
   joinGroupController,
   getGroupController,
   getGroupMembersController,
   leaveGroupController,
+  getUserGroupsController,
 };

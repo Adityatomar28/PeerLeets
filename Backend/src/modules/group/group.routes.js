@@ -11,6 +11,7 @@ router.use(protectRoute);
 // Group operations
 router.post('/', groupController.createGroupController);
 router.post('/join', groupController.joinGroupController);
+router.get('/', groupController.getUserGroupsController);
 
 // Member-only operations (verified via isGroupMember middleware)
 router.get('/:groupId', isGroupMember, groupController.getGroupController);
