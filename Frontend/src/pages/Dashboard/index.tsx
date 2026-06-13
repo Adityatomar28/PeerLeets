@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Flame, Snowflake, Users, Plus, UserCheck, CheckCircle2, ChevronRight, Info } from 'lucide-react';
+import { Flame, Users, Plus, UserCheck, CheckCircle2, ChevronRight, Info } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';

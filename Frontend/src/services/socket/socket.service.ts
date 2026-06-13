@@ -52,7 +52,7 @@ class SocketService {
     });
 
     // Listen for global push notifications and route them to Sonner toasts & Notifications Store
-    this.socket.on('challenge:activated', (data: any) => {
+    this.socket.on('challenge:activated', () => {
       toast.info(`New Challenge Activated! 🧠`);
       useNotificationStore.getState().addNotification(
         'Challenge Activated 🧠',

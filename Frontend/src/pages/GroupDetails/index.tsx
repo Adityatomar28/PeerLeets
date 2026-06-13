@@ -7,8 +7,8 @@ import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Flame, Snowflake, Users, ExternalLink, Calendar, CheckSquare, Clock, 
-  Copy, LogOut, AlertTriangle, AlertCircle, CheckCircle2, ChevronRight, Play, 
-  Pause, RotateCcw, PlayCircle, Trophy, Activity, UserCheck, Shield, Sparkles
+  Copy, LogOut, AlertCircle, CheckCircle2, ChevronRight, Play, 
+  Pause, RotateCcw, PlayCircle, Trophy, Activity, UserCheck, Sparkles
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -821,7 +821,7 @@ export default function GroupRoomPage() {
                 )}
 
                 {/* STATE 3: CLOSED & CHALLENGE ANALYTICS */}
-                {challenge.status === 'CLOSED' && analytics && (
+                {challenge.status === 'CLOSED' && analytics && grid && (
                   <div className="space-y-6">
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle/50 pb-4">
