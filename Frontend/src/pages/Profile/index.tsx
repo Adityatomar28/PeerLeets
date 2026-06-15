@@ -1,6 +1,23 @@
+import { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, type Variants } from 'framer-motion';
-import { Flame, Award, Snowflake, CheckCircle2, Mail, Shield, Calendar, BarChart3, TrendingUp } from 'lucide-react';
+import { 
+  Flame, 
+  Award, 
+  Snowflake, 
+  CheckCircle2, 
+  Mail, 
+  Shield, 
+  Calendar, 
+  BarChart3, 
+  TrendingUp,
+  Camera,
+  Save,
+  Check,
+  AlertCircle,
+  RefreshCw,
+  User
+} from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { apiClient } from '../../services/api/api.client';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../../components/ui/Card';
@@ -25,7 +42,65 @@ interface GroupItem {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
+  const [name, setName] = useState(user?.name || '');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Sync state name with store name when user updates
+  useEffect(() => {
+    if (user?.name) {
+      setName(user.name);
+    }
+  }, [user?.name]);
+
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        setErrorMsg("Image size must be less than 2MB");
+        return;
+      }
+      setErrorMsg('');
+      setSuccessMsg('');
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        if (user) {
+          localStorage.setItem(`peer_solve_avatar_${user.id}`, base64);
+          updateUser({ ...user, avatar: base64 });
+          setSuccessMsg("Profile picture uploaded successfully!");
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsSubmitting(true);
+    try {
+      const response = await apiClient.patch<{ id: string; name: string; email: string }>('/api/auth/profile', { name: name.trim() });
+      if (user) {
+        updateUser({ ...user, name: response.name });
+        setSuccessMsg('Display name updated successfully.');
+      }
+    } catch (error: any) {
+      setErrorMsg(error.message || 'Failed to update name.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Query groups & stats
   const { data: groups, isLoading } = useQuery<GroupItem[]>({
@@ -89,11 +164,29 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row items-center gap-6 border-b border-border-subtle pb-8"
       >
-        <div className="relative">
-          <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-black text-2xl text-indigo-400 uppercase shadow-lg shadow-indigo-500/5">
-            {user?.name ? user.name[0] : 'U'}
+        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="w-20 h-20 rounded-2xl object-cover border border-indigo-500/25 shadow-lg shadow-indigo-500/5 group-hover:opacity-75 transition-all"
+            />
+          ) : (
+            <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-black text-2xl text-indigo-400 uppercase shadow-lg shadow-indigo-500/5 group-hover:opacity-75 transition-all">
+              {user?.name ? user.name[0] : 'U'}
+            </div>
+          )}
+          <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <Camera className="w-5 h-5 text-white" />
           </div>
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-background-surface flex items-center justify-center">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/png, image/jpeg, image/jpg"
+            className="hidden"
+          />
+          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-background-surface flex items-center justify-center select-none">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           </div>
         </div>
@@ -116,6 +209,102 @@ export default function ProfilePage() {
             </span>
           </div>
         </div>
+      </motion.div>
+
+      {/* ACCOUNT CUSTOMIZATION CARD */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <Card className="bg-background-surface border-border-subtle overflow-hidden">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-accent-indigo" />
+              <CardTitle className="text-text-primary font-extrabold text-lg">Account Customization</CardTitle>
+            </div>
+            <CardDescription>Update your display name and upload a custom profile avatar</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+              {/* Left: Avatar Upload */}
+              <div className="flex items-center gap-4">
+                <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
+                  {user?.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="w-16 h-16 rounded-xl object-cover border border-indigo-500/25 shadow-md group-hover:opacity-75 transition-all"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-black text-xl text-indigo-400 uppercase group-hover:opacity-75 transition-all">
+                      {user?.name ? user.name[0] : 'U'}
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Camera className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleAvatarClick}
+                    className="px-3.5 py-1.5 rounded-lg bg-background-surfaceLight border border-border-subtle text-xs font-semibold text-text-primary hover:bg-white/5 transition-all cursor-pointer"
+                  >
+                    Choose Picture
+                  </button>
+                  <p className="text-[10px] text-text-muted mt-1">PNG, JPG, or JPEG up to 2MB</p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="hidden md:block h-12 w-px bg-border-subtle" />
+
+              {/* Right: Display Name Form */}
+              <form onSubmit={handleSaveName} className="flex-1 w-full flex flex-col gap-2">
+                <label className="text-[10px] font-mono font-bold tracking-wider uppercase text-text-muted">
+                  Display Name
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="flex-1 bg-background-surfaceLight border border-border-subtle rounded-lg px-3.5 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                    required
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || name.trim() === user?.name}
+                    className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-lg text-xs font-semibold hover:shadow-glow disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
+                  >
+                    {isSubmitting ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Save className="w-3.5 h-3.5" />
+                    )}
+                    Save
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Alert/Status messages */}
+            {successMsg && (
+              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-accent-emerald text-xs flex items-center gap-2">
+                <Check className="w-4 h-4 shrink-0" />
+                {successMsg}
+              </div>
+            )}
+            {errorMsg && (
+              <div className="p-3 rounded-lg bg-accent-rose/10 border border-accent-rose/20 text-accent-rose text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {errorMsg}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* 2. STATS GRID */}

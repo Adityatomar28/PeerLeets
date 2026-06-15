@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
@@ -49,6 +49,79 @@ export default function Dashboard() {
     queryKey: ['userGroups'],
     queryFn: () => apiClient.get<GroupItem[]>('/api/groups'),
   });
+
+  // React Query: Fetch user active days
+  const { data: activityDates, isLoading: activityLoading } = useQuery<string[]>({
+    queryKey: ['userActivity'],
+    queryFn: () => apiClient.get<string[]>('/api/auth/activity'),
+  });
+
+  const [activeTooltip, setActiveTooltip] = useState<{
+    dateStr: string;
+    count: number;
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Generate calendar weeks and days for the last 365 days
+  const weeks = useMemo(() => {
+    if (!activityDates) return [];
+
+    const datesMap: { [dateStr: string]: number } = {};
+    activityDates.forEach((dateStr) => {
+      const key = dateStr.split('T')[0];
+      datesMap[key] = (datesMap[key] || 0) + 1;
+    });
+
+    const today = new Date();
+    const yearAgo = new Date();
+    yearAgo.setDate(today.getDate() - 364);
+
+    const startOffset = yearAgo.getDay();
+    const startDate = new Date(yearAgo);
+    startDate.setDate(startDate.getDate() - startOffset);
+
+    const totalDays = 365 + startOffset;
+    const computedWeeks: any[][] = [];
+    let currentWeek: any[] = [];
+
+    for (let i = 0; i < totalDays; i++) {
+      const d = new Date(startDate);
+      d.setDate(startDate.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      const count = datesMap[dateStr] || 0;
+
+      currentWeek.push({
+        date: d,
+        dateStr,
+        count,
+      });
+
+      if (currentWeek.length === 7) {
+        computedWeeks.push(currentWeek);
+        currentWeek = [];
+      }
+    }
+    if (currentWeek.length > 0) {
+      computedWeeks.push(currentWeek);
+    }
+    return computedWeeks;
+  }, [activityDates]);
+
+  // Compute month labels aligned with grid columns
+  const monthLabels = useMemo(() => {
+    const labels: { label: string; colIdx: number }[] = [];
+    weeks.forEach((week, colIdx) => {
+      const firstDay = week[0]?.date;
+      if (firstDay) {
+        const monthName = firstDay.toLocaleString('default', { month: 'short' });
+        if (labels.length === 0 || labels[labels.length - 1].label !== monthName) {
+          labels.push({ label: monthName, colIdx });
+        }
+      }
+    });
+    return labels;
+  }, [weeks]);
 
   // Create Group Mutation
   const createMutation = useMutation({
@@ -162,6 +235,113 @@ export default function Dashboard() {
             </CardHeader>
           </Card>
         </div>
+      )}
+
+      {/* 2. CONTRIBUTION CALENDAR CARD */}
+      {activityLoading ? (
+        <Card className="bg-background-surface border-border-subtle p-6">
+          <Skeleton className="h-44 w-full animate-pulse" />
+        </Card>
+      ) : (
+        activityDates && (
+          <Card className="bg-background-surface border-border-subtle p-6 relative overflow-hidden text-left">
+            <CardHeader className="pb-4 p-0 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-white text-base font-extrabold">Consistency Calendar</CardTitle>
+                <CardDescription className="text-[11px] text-text-secondary mt-0.5">
+                  Your daily solve activity over the last 365 days
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-text-muted">
+                <span>Less</span>
+                <span className="w-2.5 h-2.5 rounded bg-white/[0.02] border border-white/5" />
+                <span className="w-2.5 h-2.5 rounded bg-emerald-500/15 border border-emerald-500/25" />
+                <span className="w-2.5 h-2.5 rounded bg-emerald-500/35 border border-emerald-500/45" />
+                <span className="w-2.5 h-2.5 rounded bg-emerald-500/60 border border-emerald-500/70" />
+                <span>More</span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0 pt-4 overflow-x-auto min-w-full custom-scrollbar relative">
+              <div className="flex gap-3 items-start min-w-[760px] pb-2">
+                {/* Weekday Labels Column */}
+                <div className="grid grid-rows-7 gap-[3px] text-[9px] font-mono text-text-muted select-none pt-[16px] pr-1.5 w-6 text-right shrink-0 leading-[10px]">
+                  <div></div>
+                  <div>Mon</div>
+                  <div></div>
+                  <div>Wed</div>
+                  <div></div>
+                  <div>Fri</div>
+                  <div></div>
+                </div>
+
+                {/* Grid Column Container */}
+                <div className="flex-1 space-y-1 relative">
+                  {/* Month Labels row */}
+                  <div className="h-4 relative text-[9px] font-mono text-text-muted select-none w-full">
+                    {monthLabels.map((lbl: any, idx: number) => (
+                      <span
+                        key={idx}
+                        className="absolute"
+                        style={{ left: `${(lbl.colIdx * 13.5)}px` }}
+                      >
+                        {lbl.label}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Contribution Squares Grid */}
+                  <div className="flex gap-[3.5px]">
+                    {weeks.map((week: any[], colIdx: number) => (
+                      <div key={colIdx} className="grid grid-rows-7 gap-[3px] shrink-0">
+                        {week.map((day: any, rowIdx: number) => {
+                          const intensityClass =
+                            day.count === 0
+                              ? 'bg-white/[0.02] border-white/5'
+                              : day.count === 1
+                              ? 'bg-emerald-500/15 border-emerald-500/25'
+                              : day.count === 2
+                              ? 'bg-emerald-500/35 border-emerald-500/45'
+                              : 'bg-emerald-500/60 border-emerald-500/70';
+
+                          return (
+                            <div
+                              key={rowIdx}
+                              className={`w-[10px] h-[10px] rounded-[2px] border transition-all hover:scale-125 hover:border-indigo-500 cursor-pointer ${intensityClass}`}
+                              onMouseEnter={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                const parentRect = e.currentTarget.offsetParent?.getBoundingClientRect();
+                                setActiveTooltip({
+                                  dateStr: day.dateStr,
+                                  count: day.count,
+                                  x: rect.left - (parentRect?.left || 0) + rect.width / 2,
+                                  y: rect.top - (parentRect?.top || 0) - 34,
+                                });
+                              }}
+                              onMouseLeave={() => setActiveTooltip(null)}
+                            />
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Custom Tooltip */}
+              {activeTooltip && (
+                <div
+                  className="absolute z-30 px-2.5 py-1.5 rounded-lg bg-[#0e121a]/95 border border-border-subtle text-[10px] text-white font-sans font-medium pointer-events-none transition-all shadow-glow -translate-x-1/2"
+                  style={{ left: activeTooltip.x, top: activeTooltip.y }}
+                >
+                  <span className="font-bold text-emerald-400">
+                    {activeTooltip.count} {activeTooltip.count === 1 ? 'problem' : 'problems'} solved
+                  </span>{' '}
+                  on {new Date(activeTooltip.dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )
       )}
 
       {/* Skeletons Loading View */}

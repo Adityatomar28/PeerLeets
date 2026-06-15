@@ -108,11 +108,27 @@ const activateSchema = z.object({
 });
 
 const solveSchema = z.object({
-  timeTaken: z.number().min(1, 'Duration must be at least 1 minute'),
+  minutes: z.number().min(0, 'Minutes cannot be negative'),
+  seconds: z.number().min(0, 'Seconds cannot be negative').max(59, 'Seconds must be between 0 and 59'),
   notes: z.string().max(200, 'Notes must be less than 200 characters').optional(),
+}).refine((data) => data.minutes > 0 || data.seconds > 0, {
+  message: 'Duration must be at least 1 second',
+  path: ['minutes'],
 });
 
 // Helpers
+const formatDuration = (totalSeconds: number) => {
+  if (totalSeconds < 60) {
+    return `${totalSeconds}s`;
+  }
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  if (secs === 0) {
+    return `${mins}m`;
+  }
+  return `${mins}m ${secs}s`;
+};
+
 function parseProblemLink(link: string | null) {
   if (!link) return { url: '', difficulty: 'Medium', notes: '' };
   try {
@@ -165,9 +181,9 @@ export default function GroupRoomPage() {
     defaultValues: { problemLink: '', difficulty: 'Medium', notes: '' },
   });
 
-  const solveForm = useForm<{ timeTaken: number; notes?: string }>({
+  const solveForm = useForm<{ minutes: number; seconds: number; notes?: string }>({
     resolver: zodResolver(solveSchema),
-    defaultValues: { timeTaken: 15, notes: '' },
+    defaultValues: { minutes: 15, seconds: 0, notes: '' },
   });
 
   // Queries
@@ -348,7 +364,7 @@ export default function GroupRoomPage() {
     const times = solvedWithTimes.map(s => s.timeTaken as number);
     
     const averageSolveTime = times.length > 0 
-      ? Math.round(times.reduce((acc, t) => acc + t, 0) / times.length / 60)
+      ? Math.round(times.reduce((acc, t) => acc + t, 0) / times.length)
       : 0;
 
     let fastestSolver: ParticipationUser | null = null;
@@ -513,8 +529,8 @@ export default function GroupRoomPage() {
   });
 
   const solveMutation = useMutation({
-    mutationFn: (timeTaken: number) => 
-      apiClient.post(`/api/groups/${groupId}/challenges/${challengeId}/solve`, { timeTaken: timeTaken * 60 }),
+    mutationFn: (timeTakenSeconds: number) => 
+      apiClient.post(`/api/groups/${groupId}/challenges/${challengeId}/solve`, { timeTaken: timeTakenSeconds }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['participationGrid', groupId, challengeId] });
       queryClient.invalidateQueries({ queryKey: ['groupLeaderboard', groupId] });
@@ -553,20 +569,33 @@ export default function GroupRoomPage() {
     activateMutation.mutate({ problemLink: serializedLink });
   };
 
-  const handleSolveSubmit = (values: { timeTaken: number; notes?: string }) => {
-    solveMutation.mutate(values.timeTaken);
+  const handleSolveSubmit = (values: { minutes: number; seconds: number; notes?: string }) => {
+    const totalSeconds = (values.minutes * 60) + values.seconds;
+    solveMutation.mutate(totalSeconds);
   };
 
   const handleSolveModalTrigger = () => {
-    // Pre-fill solve duration from timer if active
-    let defaultMins = 15;
-    if (timer.state === 'running' || timer.state === 'paused') {
-      const elapsedSeconds = timer.state === 'running'
-        ? timer.elapsed + Math.floor((Date.now() - timer.startTime) / 1000)
-        : timer.elapsed;
-      defaultMins = Math.max(1, Math.round(elapsedSeconds / 60));
+    let elapsedSeconds = 0;
+    if (timer.state === 'running') {
+      const currentElapsed = timer.elapsed + Math.floor((Date.now() - timer.startTime) / 1000);
+      saveTimerState({
+        state: 'paused',
+        startTime: 0,
+        elapsed: currentElapsed,
+      });
+      elapsedSeconds = currentElapsed;
+    } else if (timer.state === 'paused') {
+      elapsedSeconds = timer.elapsed;
     }
-    solveForm.setValue('timeTaken', defaultMins);
+
+    if (elapsedSeconds > 0) {
+      solveForm.setValue('minutes', Math.floor(elapsedSeconds / 60));
+      solveForm.setValue('seconds', elapsedSeconds % 60);
+    } else {
+      solveForm.setValue('minutes', 15);
+      solveForm.setValue('seconds', 0);
+    }
+    solveForm.setValue('notes', '');
     setIsSolveOpen(true);
   };
 
@@ -867,15 +896,15 @@ export default function GroupRoomPage() {
                           {analytics.totalSolvers} solved
                         </span>
                       </div>
-
+                      
                       {/* Average Solve Time */}
                       <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Avg Duration</span>
                         <span className="text-xl font-mono font-bold text-accent-indigo block mt-1">
-                          {analytics.averageSolveTime} min
+                          {formatDuration(analytics.averageSolveTime)}
                         </span>
                       </div>
-
+ 
                       {/* First Solver */}
                       <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">First Solver</span>
@@ -884,7 +913,7 @@ export default function GroupRoomPage() {
                         </span>
                       </div>
                     </div>
-
+ 
                     {/* Detailed Speeds & Misses Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Solver Speeds */}
@@ -894,7 +923,7 @@ export default function GroupRoomPage() {
                           <span className="text-text-secondary">Fastest Solver:</span>
                           <span className="font-semibold text-white font-mono">
                             {analytics.fastestSolver 
-                              ? `${analytics.fastestSolver.name} (${Math.round((analytics.fastestSolver.timeTaken || 0) / 60)}m)` 
+                              ? `${analytics.fastestSolver.name} (${formatDuration(analytics.fastestSolver.timeTaken || 0)})` 
                               : '-'}
                           </span>
                         </div>
@@ -902,7 +931,7 @@ export default function GroupRoomPage() {
                           <span className="text-text-secondary">Slowest Solver:</span>
                           <span className="font-semibold text-white font-mono">
                             {analytics.slowestSolver 
-                              ? `${analytics.slowestSolver.name} (${Math.round((analytics.slowestSolver.timeTaken || 0) / 60)}m)` 
+                              ? `${analytics.slowestSolver.name} (${formatDuration(analytics.slowestSolver.timeTaken || 0)})` 
                               : '-'}
                           </span>
                         </div>
@@ -1003,7 +1032,7 @@ export default function GroupRoomPage() {
                               <span className="font-sans text-xs text-white font-semibold">{u.name}</span>
                             </div>
                             <span className="font-mono text-[10px] text-text-secondary">
-                              {u.timeTaken ? `${Math.round(u.timeTaken / 60)}m taken` : 'solved'}
+                              {u.timeTaken ? `${formatDuration(u.timeTaken)} taken` : 'solved'}
                             </span>
                           </div>
                         ))}
@@ -1352,19 +1381,43 @@ export default function GroupRoomPage() {
         description="Record your completion duration and notes to submit this daily challenge."
       >
         <form onSubmit={solveForm.handleSubmit(handleSolveSubmit)} className="space-y-4">
-          
+          {/* Active Timer Info Banner */}
+          {elapsedDisplay > 0 && (
+            <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs flex items-center justify-between mb-4">
+              <span className="flex items-center gap-1.5">⏱️ Auto-filled from your active stopwatch:</span>
+              <strong className="font-mono text-sm">{formatStopwatch(elapsedDisplay)}</strong>
+            </div>
+          )}
+
           {/* Time Taken */}
           <div className="space-y-1.5 text-left">
-            <label className="text-xs font-semibold text-text-secondary">Time Taken (in minutes)</label>
-            <Input
-              type="number"
-              placeholder="e.g. 15"
-              error={!!solveForm.formState.errors.timeTaken}
-              {...solveForm.register('timeTaken', { valueAsNumber: true })}
-            />
-            {solveForm.formState.errors.timeTaken && (
-              <p className="text-[10px] text-accent-rose font-medium mt-1">{solveForm.formState.errors.timeTaken.message}</p>
-            )}
+            <label className="text-xs font-semibold text-text-secondary block">Time Taken</label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] text-text-muted font-medium block">Minutes</span>
+                <Input
+                  type="number"
+                  placeholder="Minutes"
+                  error={!!solveForm.formState.errors.minutes}
+                  {...solveForm.register('minutes', { valueAsNumber: true })}
+                />
+                {solveForm.formState.errors.minutes && (
+                  <p className="text-[10px] text-accent-rose font-medium mt-1">{solveForm.formState.errors.minutes.message}</p>
+                )}
+              </div>
+              <div className="space-y-1">
+                <span className="text-[10px] text-text-muted font-medium block">Seconds</span>
+                <Input
+                  type="number"
+                  placeholder="Seconds"
+                  error={!!solveForm.formState.errors.seconds}
+                  {...solveForm.register('seconds', { valueAsNumber: true })}
+                />
+                {solveForm.formState.errors.seconds && (
+                  <p className="text-[10px] text-accent-rose font-medium mt-1">{solveForm.formState.errors.seconds.message}</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Optional notes */}

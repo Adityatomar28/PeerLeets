@@ -8,17 +8,17 @@ export default {
     extend: {
       colors: {
         background: {
-          base: '#0F1117',
-          surface: '#151922',
-          surfaceLight: '#1A1F2B',
+          base: 'var(--bg-base)',
+          surface: 'var(--bg-surface)',
+          surfaceLight: 'var(--bg-surface-light)',
         },
         card: {
           base: '#1E2433',
         },
         text: {
-          primary: '#F8FAFC',
-          secondary: '#94A3B8',
-          muted: '#64748B',
+          primary: 'var(--text-primary)',
+          secondary: 'var(--text-secondary)',
+          muted: 'var(--text-muted)',
         },
         accent: {
           indigo: '#6366F1',
@@ -28,7 +28,7 @@ export default {
           rose: '#F43F5E',
         },
         border: {
-          subtle: 'rgba(255, 255, 255, 0.06)',
+          subtle: 'var(--border-subtle)',
           glow: 'rgba(99, 102, 241, 0.25)',
         }
       },

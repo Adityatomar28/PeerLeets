@@ -4,6 +4,7 @@ import {
   signupService,
   loginService,
 } from "../modules/auth/auth.service.js";
+import prisma from "../config/db.js";
 
 export const signup = async (req, res, next) => {
   try {
@@ -26,6 +27,66 @@ export const login = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getUserActivity = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const submissions = await prisma.submission.findMany({
+      where: {
+        userId,
+        solved: true,
+      },
+      select: {
+        solvedAt: true,
+      },
+      orderBy: {
+        solvedAt: "asc",
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      data: submissions.map((s) => s.solvedAt.toISOString()),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    const { name } = req.body;
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Name is required",
+      });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { name: name.trim() },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      }
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
     });
   } catch (error) {
     res.status(500).json({
