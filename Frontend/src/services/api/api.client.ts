@@ -1,4 +1,5 @@
 import { useAuthStore } from '../../store/auth.store';
+import { apiUrl } from '../../config/runtime';
 
 export class ApiError extends Error {
   status: number;
@@ -25,7 +26,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     options.body = JSON.stringify(options.body);
   }
 
-  const response = await fetch(path, { ...options, headers });
+  const response = await fetch(apiUrl(path), { ...options, headers });
 
   if (response.status === 401) {
     clearAuth();

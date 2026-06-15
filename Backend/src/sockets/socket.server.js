@@ -12,10 +12,16 @@ import { initGatewayListeners } from "./socket.gateway.js";
 export const initSocketServer = (httpServer) => {
   console.log("[Socket Server] Binding Socket.IO to HTTP server...");
 
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
   const io = new Server(httpServer, {
     cors: {
-      origin: "*", // Configured loosely for testing, restrict to target domains in production
+      origin: allowedOrigins,
       methods: ["GET", "POST"],
+      credentials: true,
     },
     // Configured for resilience against browser disconnects and reconnect storms
     pingTimeout: 60000,

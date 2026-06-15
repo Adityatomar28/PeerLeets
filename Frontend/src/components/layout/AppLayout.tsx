@@ -1,15 +1,16 @@
 import { useEffect, useState, useRef } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { UserButton } from '@clerk/react';
 import { useAuthStore } from '../../store/auth.store';
+import { useThemeStore } from '../../store/theme.store';
 import { useSocketStore } from '../../store/socket.store';
 import { useNotificationStore } from '../../store/notification.store';
 import { socketService } from '../../services/socket/socket.service';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  User, 
-  LogOut, 
   Users, 
+  LayoutDashboard,
+  Swords,
   Wifi, 
   WifiOff, 
   RefreshCw, 
@@ -17,27 +18,21 @@ import {
   Trash2, 
   CheckCheck,
   Sun,
-  Moon,
-  ChevronDown
+  Moon
 } from 'lucide-react';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { user, token, clearAuth } = useAuthStore();
+  const { token } = useAuthStore();
   const { status } = useSocketStore();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('peer_solve_theme') as 'light' | 'dark') || 'dark';
-  });
+  const { theme, toggleTheme } = useThemeStore();
 
   const { notifications, markAllRead, clearAll, getUnreadCount } = useNotificationStore();
   const unreadCount = getUnreadCount();
   
   const notificationDropdownRef = useRef<HTMLDivElement>(null);
-  const profileDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns on click outside
   useEffect(() => {
@@ -46,23 +41,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       if (notificationDropdownRef.current && !notificationDropdownRef.current.contains(target)) {
         setShowNotifications(false);
       }
-      if (profileDropdownRef.current && !profileDropdownRef.current.contains(target)) {
-        setShowProfileDropdown(false);
-      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Sync theme selection to documentElement class list
-  useEffect(() => {
-    if (theme === 'light') {
-      document.documentElement.classList.add('light');
-    } else {
-      document.documentElement.classList.remove('light');
-    }
-    localStorage.setItem('peer_solve_theme', theme);
-  }, [theme]);
 
   // Handle socket connection lifecycle
   useEffect(() => {
@@ -74,12 +56,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
   }, [token]);
 
-  const handleLogout = () => {
-    clearAuth();
-    navigate('/login');
-  };
-
   const getPageTitle = () => {
+    if (location.pathname === '/groups') return 'Groups';
+    if (location.pathname === '/challenges') return 'Challenges';
     if (location.pathname.startsWith('/groups')) return 'Squad Room';
     if (location.pathname === '/profile') return 'Profile Details';
     return 'Dashboard';
@@ -92,8 +71,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Global Header */}
       <header className="h-16 border-b border-border-subtle px-6 md:px-8 flex items-center justify-between shrink-0 bg-background-base/50 backdrop-blur-md relative z-30">
-        {/* Left branding & title */}
-        <div className="flex items-center gap-4">
+        {/* Left branding & navigation */}
+        <div className="flex items-center gap-3 md:gap-5 min-w-0">
           <Link to="/dashboard" className="flex items-center gap-2 px-1">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center shadow-md shadow-indigo-500/10">
               <Users className="w-4 h-4 text-white" />
@@ -106,6 +85,36 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="text-[10px] font-mono font-bold tracking-wider uppercase text-text-muted select-none">
             {getPageTitle()}
           </div>
+
+          <nav className="hidden md:flex items-center gap-1 ml-2">
+            {[
+              { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+              { to: '/groups', label: 'Groups', icon: Users },
+              { to: '/challenges', label: 'Challenges', icon: Swords },
+            ].map((item) => {
+              const isActive =
+                item.to === '/groups'
+                  ? location.pathname === '/groups'
+                  : item.to === '/challenges'
+                    ? location.pathname === '/challenges'
+                    : location.pathname === '/dashboard';
+
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-indigo-500/10 text-indigo-400'
+                      : 'text-text-secondary hover:bg-background-surfaceLight hover:text-text-primary'
+                  }`}
+                >
+                  <item.icon className="w-3.5 h-3.5" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
         </div>
 
         {/* Right navigation / status */}
@@ -220,127 +229,35 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </AnimatePresence>
           </div>
 
-          {/* Profile Dropdown Trigger */}
-          <div className="relative" ref={profileDropdownRef}>
-            <button
-              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className="flex items-center gap-1.5 p-1 rounded-lg hover:bg-background-surfaceLight border border-border-subtle/30 transition-all cursor-pointer bg-background-surface/30"
-              style={{ background: 'none' }}
-            >
-              {user?.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-7 h-7 rounded-md object-cover border border-indigo-500/20"
-                />
-              ) : (
-                <div className="w-7 h-7 rounded-md bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center font-bold text-[11px] text-indigo-400 uppercase shrink-0">
-                  {user?.name ? user.name[0] : 'U'}
-                </div>
-              )}
-              <ChevronDown className="w-3.5 h-3.5 text-text-secondary pr-0.5" />
-            </button>
+          {/* Theme toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-background-surfaceLight border border-border-subtle text-text-secondary hover:text-text-primary transition-all cursor-pointer"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? (
+              <Sun className="w-4 h-4 text-amber-500" />
+            ) : (
+              <Moon className="w-4 h-4 text-indigo-500" />
+            )}
+          </button>
 
-            {/* Profile Dropdown Menu */}
-            <AnimatePresence>
-              {showProfileDropdown && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.15 }}
-                  className="absolute right-0 mt-2 w-60 bg-background-surface border border-border-subtle rounded-xl shadow-glow overflow-hidden z-50 p-1.5 space-y-0.5 text-left"
-                >
-                  {/* User info details header */}
-                  <div className="px-3 py-2 border-b border-border-subtle mb-1 flex items-center gap-3">
-                    {user?.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-lg object-cover border border-indigo-500/20"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center font-bold text-xs text-indigo-400 uppercase shrink-0">
-                        {user?.name ? user.name[0] : 'U'}
-                      </div>
-                    )}
-                    <div className="overflow-hidden">
-                      <div className="font-bold text-xs text-text-primary truncate">{user?.name}</div>
-                      <div className="text-[10px] text-text-secondary truncate">{user?.email}</div>
-                    </div>
-                  </div>
-
-                  {/* Navigation Links */}
-                  <Link
-                    to="/dashboard"
-                    onClick={() => setShowProfileDropdown(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      location.pathname === '/dashboard'
-                        ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                        : 'text-text-secondary hover:bg-background-surfaceLight hover:text-text-primary border border-transparent'
-                    }`}
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    Dashboard
-                  </Link>
-
-                  <Link
-                    to="/profile"
-                    onClick={() => setShowProfileDropdown(false)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
-                      location.pathname === '/profile'
-                        ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                        : 'text-text-secondary hover:bg-background-surfaceLight hover:text-text-primary border border-transparent'
-                    }`}
-                  >
-                    <User className="w-4 h-4" />
-                    My Profile
-                  </Link>
-
-                  {/* Theme Switcher Button */}
-                  <button
-                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold text-text-secondary hover:bg-background-surfaceLight hover:text-text-primary transition-all border border-transparent cursor-pointer"
-                    style={{ background: 'none' }}
-                  >
-                    <span className="flex items-center gap-2.5">
-                      {theme === 'dark' ? (
-                        <Sun className="w-4 h-4 text-amber-500 fill-amber-500/10" />
-                      ) : (
-                        <Moon className="w-4 h-4 text-indigo-500 fill-indigo-500/10" />
-                      )}
-                      {theme === 'dark' ? 'Light Theme' : 'Dark Theme'}
-                    </span>
-                    <span className="text-[8px] font-mono uppercase bg-background-surfaceLight px-1.5 py-0.5 rounded border border-border-subtle text-text-muted">
-                      {theme}
-                    </span>
-                  </button>
-
-                  <div className="border-t border-border-subtle my-1" />
-
-                  {/* Log Out */}
-                  <button
-                    onClick={() => {
-                      setShowProfileDropdown(false);
-                      handleLogout();
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-text-secondary hover:bg-accent-rose/10 hover:text-accent-rose transition-all border border-transparent cursor-pointer"
-                    style={{ background: 'none' }}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    Sign Out
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Clerk account menu */}
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: 'w-8 h-8',
+              },
+            }}
+          />
         </div>
       </header>
 
       {/* Main Workspace Area */}
       <div className="flex-1 flex flex-col overflow-y-auto min-h-0 relative z-10">
         <main className="flex-1 p-6 md:p-8">
-          <div className="max-w-5xl mx-auto w-full">
+          <div className="max-w-6xl mx-auto w-full">
             {children}
           </div>
         </main>
@@ -348,4 +265,3 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 import { useSocketStore } from '../../store/socket.store';
 import { useNotificationStore } from '../../store/notification.store';
 import { toast } from 'sonner';
+import { socketUrl } from '../../config/runtime';
 
 class SocketService {
   private socket: Socket | null = null;
@@ -15,9 +16,7 @@ class SocketService {
 
     useSocketStore.getState().setStatus('connecting');
 
-    // Connect to the backend server (Vite proxy config doesn't apply to WebSockets directly,
-    // so we connect to the server at http://localhost:3000 directly)
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(socketUrl, {
       auth: { token },
       reconnection: true,
       reconnectionAttempts: 10,

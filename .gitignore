@@ -1,9 +1,28 @@
-node_modules
-# Keep environment variables out of version control
+# Dependencies
+node_modules/
+
+# Environment
 .env
+.env.*
+!.env.example
 
-/generated/prisma
+# Ignore local env files in subprojects
+/Frontend/.env.local
+/Backend/.env.local
+# Explicitly ensure backend env backups and sensitive files are ignored
+/Backend/.env
+/Backend/.env.sensitive
 
-/generated/prisma
+# Build output
+dist/
+Frontend/dist/
 
-/generated/prisma
+# Prisma generated client (regenerate with: cd Backend && npx prisma generate)
+Backend/generated/
+
+# OS & editor
+.DS_Store
+*.log
+
+# TypeScript
+*.tsbuildinfo

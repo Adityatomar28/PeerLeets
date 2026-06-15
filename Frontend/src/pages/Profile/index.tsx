@@ -16,7 +16,8 @@ import {
   Check,
   AlertCircle,
   RefreshCw,
-  User
+  User,
+  Sparkles
 } from 'lucide-react';
 import { useAuthStore } from '../../store/auth.store';
 import { apiClient } from '../../services/api/api.client';
@@ -50,7 +51,6 @@ export default function ProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync state name with store name when user updates
   useEffect(() => {
     if (user?.name) {
       setName(user.name);
@@ -102,13 +102,11 @@ export default function ProfilePage() {
     }
   };
 
-  // Query groups & stats
   const { data: groups, isLoading } = useQuery<GroupItem[]>({
     queryKey: ['userGroups'],
     queryFn: () => apiClient.get<GroupItem[]>('/api/groups'),
   });
 
-  // Aggregated Stats
   const totalGroups = groups?.length || 0;
   const maxActiveStreak = groups ? Math.max(...groups.map(g => g.stats.currentStreak), 0) : 0;
   const maxLongestStreak = groups ? Math.max(...groups.map(g => g.stats.longestStreak), 0) : 0;
@@ -120,34 +118,25 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="space-y-8 text-left">
-        <div className="flex items-center gap-6 border-b border-border-subtle pb-8">
-          <Skeleton className="w-20 h-20 rounded-full" />
-          <div className="space-y-2.5">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-64" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Skeleton className="h-36 rounded-2xl" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
           {[1, 2, 3, 4].map(i => (
-            <Skeleton key={i} className="h-28" />
+            <Skeleton key={i} className="h-28 rounded-2xl" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-64 lg:col-span-2" />
-          <Skeleton className="h-64" />
+          <Skeleton className="h-64 lg:col-span-2 rounded-2xl" />
+          <Skeleton className="h-64 rounded-2xl" />
         </div>
       </div>
     );
   }
 
-  // Animation variants
   const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
+      transition: { staggerChildren: 0.06 }
     }
   };
 
@@ -156,78 +145,92 @@ export default function ProfilePage() {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
 
+  const statCards = [
+    { label: 'Max Active Streak', value: maxActiveStreak, unit: 'days', color: 'text-orange-400', icon: Flame, iconBg: 'bg-orange-500/10 border-orange-500/15', iconColor: 'text-orange-500 fill-current' },
+    { label: 'Longest Streak', value: maxLongestStreak, unit: 'days', color: 'text-accent-amber', icon: Award, iconBg: 'bg-amber-500/10 border-amber-500/15', iconColor: 'text-accent-amber fill-current' },
+    { label: 'Total Solved', value: cumulativeSolved, unit: 'problems', color: 'text-accent-emerald', icon: CheckCircle2, iconBg: 'bg-emerald-500/10 border-emerald-500/15', iconColor: 'text-accent-emerald' },
+  ];
+
   return (
-    <div className="space-y-8 text-left max-w-6xl mx-auto">
-      {/* 1. PROFILE HEADER CARD */}
+    <div className="space-y-8 text-left">
+      {/* Profile Hero */}
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-center gap-6 border-b border-border-subtle pb-8"
+        className="profile-hero p-6 md:p-8"
       >
-        <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-20 h-20 rounded-2xl object-cover border border-indigo-500/25 shadow-lg shadow-indigo-500/5 group-hover:opacity-75 transition-all"
-            />
-          ) : (
-            <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-black text-2xl text-indigo-400 uppercase shadow-lg shadow-indigo-500/5 group-hover:opacity-75 transition-all">
-              {user?.name ? user.name[0] : 'U'}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center gap-6">
+          <div className="relative group cursor-pointer shrink-0" onClick={handleAvatarClick}>
+            {user?.avatar ? (
+              <img
+                src={user.avatar}
+                alt={user.name}
+                className="w-24 h-24 rounded-2xl object-cover border-2 border-indigo-500/30 shadow-lg shadow-indigo-500/10 group-hover:opacity-80 transition-all"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-2xl bg-indigo-500/10 border-2 border-indigo-500/30 flex items-center justify-center font-display font-extrabold text-3xl text-indigo-400 uppercase shadow-lg shadow-indigo-500/10 group-hover:opacity-80 transition-all">
+                {user?.name ? user.name[0] : 'U'}
+              </div>
+            )}
+            <div className="absolute inset-0 bg-overlay rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Camera className="w-5 h-5 text-white" />
             </div>
-          )}
-          <div className="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <Camera className="w-5 h-5 text-white" />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              accept="image/png, image/jpeg, image/jpg"
+              className="hidden"
+            />
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-background-surface flex items-center justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            </div>
           </div>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/png, image/jpeg, image/jpg"
-            className="hidden"
-          />
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-background-surface flex items-center justify-center select-none">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          </div>
-        </div>
 
-        <div className="text-center sm:text-left space-y-1">
-          <div className="flex flex-wrap justify-center sm:justify-start items-center gap-2.5">
-            <h1 className="font-display font-extrabold text-2xl md:text-3xl text-white">{user?.name}</h1>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-bold text-accent-emerald">
-              <Shield className="w-3 h-3" /> Pro Member
-            </span>
-          </div>
-          
-          <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-4 gap-y-1.5 text-xs text-text-secondary">
-            <span className="flex items-center gap-1.5">
-              <Mail className="w-3.5 h-3.5 text-text-muted" /> {user?.email}
-            </span>
-            <span className="hidden sm:inline text-text-muted">•</span>
-            <span className="flex items-center gap-1.5">
-              <Calendar className="w-3.5 h-3.5 text-text-muted" /> Active Member • {totalGroups} {totalGroups === 1 ? 'squad' : 'squads'} joined
-            </span>
+          <div className="text-center sm:text-left space-y-2 flex-1">
+            <p className="workspace-eyebrow flex items-center justify-center sm:justify-start gap-1.5">
+              <Sparkles className="w-3 h-3 text-indigo-400" /> Member Profile
+            </p>
+            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-3">
+              <h1 className="font-display font-extrabold text-2xl md:text-3xl text-text-primary tracking-tight">{user?.name}</h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono font-semibold text-accent-emerald">
+                <Shield className="w-3 h-3" /> Pro Member
+              </span>
+            </div>
+            
+            <div className="flex flex-wrap justify-center sm:justify-start items-center gap-x-4 gap-y-1.5 text-sm text-text-secondary">
+              <span className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-text-muted" /> {user?.email}
+              </span>
+              <span className="hidden sm:inline text-text-muted">•</span>
+              <span className="flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5 text-text-muted" /> {totalGroups} {totalGroups === 1 ? 'squad' : 'squads'} joined
+              </span>
+            </div>
           </div>
         </div>
       </motion.div>
 
-      {/* ACCOUNT CUSTOMIZATION CARD */}
+      {/* Account Customization */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
       >
-        <Card className="bg-background-surface border-border-subtle overflow-hidden">
+        <Card className="premium-card">
           <CardHeader className="pb-4">
-            <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-accent-indigo" />
-              <CardTitle className="text-text-primary font-extrabold text-lg">Account Customization</CardTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-accent-indigo" />
+              </div>
+              <div>
+                <CardTitle className="text-text-primary text-lg">Account Customization</CardTitle>
+                <CardDescription className="mt-0.5">Update your display name and upload a custom profile avatar</CardDescription>
+              </div>
             </div>
-            <CardDescription>Update your display name and upload a custom profile avatar</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
-              {/* Left: Avatar Upload */}
               <div className="flex items-center gap-4">
                 <div className="relative group cursor-pointer" onClick={handleAvatarClick}>
                   {user?.avatar ? (
@@ -237,11 +240,11 @@ export default function ProfilePage() {
                       className="w-16 h-16 rounded-xl object-cover border border-indigo-500/25 shadow-md group-hover:opacity-75 transition-all"
                     />
                   ) : (
-                    <div className="w-16 h-16 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-black text-xl text-indigo-400 uppercase group-hover:opacity-75 transition-all">
+                    <div className="w-16 h-16 rounded-xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center font-display font-extrabold text-xl text-indigo-400 uppercase group-hover:opacity-75 transition-all">
                       {user?.name ? user.name[0] : 'U'}
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="absolute inset-0 bg-overlay rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Camera className="w-4 h-4 text-white" />
                   </div>
                 </div>
@@ -249,35 +252,31 @@ export default function ProfilePage() {
                   <button
                     type="button"
                     onClick={handleAvatarClick}
-                    className="px-3.5 py-1.5 rounded-lg bg-background-surfaceLight border border-border-subtle text-xs font-semibold text-text-primary hover:bg-white/5 transition-all cursor-pointer"
+                    className="px-4 py-2 rounded-lg bg-background-surfaceLight border border-border-subtle text-xs font-semibold text-text-primary hover:border-border-cardHover transition-all cursor-pointer"
                   >
                     Choose Picture
                   </button>
-                  <p className="text-[10px] text-text-muted mt-1">PNG, JPG, or JPEG up to 2MB</p>
+                  <p className="text-[11px] text-text-muted mt-1.5">PNG, JPG, or JPEG up to 2MB</p>
                 </div>
               </div>
 
-              {/* Divider */}
-              <div className="hidden md:block h-12 w-px bg-border-subtle" />
+              <div className="hidden md:block h-14 w-px bg-border-subtle" />
 
-              {/* Right: Display Name Form */}
               <form onSubmit={handleSaveName} className="flex-1 w-full flex flex-col gap-2">
-                <label className="text-[10px] font-mono font-bold tracking-wider uppercase text-text-muted">
-                  Display Name
-                </label>
+                <label className="workspace-eyebrow">Display Name</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="flex-1 bg-background-surfaceLight border border-border-subtle rounded-lg px-3.5 py-2 text-sm text-text-primary focus:outline-none focus:border-accent-indigo transition-colors"
+                    className="flex-1 bg-background-surfaceLight border border-border-subtle rounded-xl px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-indigo/50 focus:ring-2 focus:ring-indigo-500/10 transition-all"
                     required
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting || name.trim() === user?.name}
-                    className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-lg text-xs font-semibold hover:shadow-glow disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
+                    className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-xl text-xs font-semibold hover:shadow-glow disabled:opacity-50 disabled:pointer-events-none transition-all cursor-pointer shrink-0 flex items-center gap-1.5"
                   >
                     {isSubmitting ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -290,15 +289,14 @@ export default function ProfilePage() {
               </form>
             </div>
 
-            {/* Alert/Status messages */}
             {successMsg && (
-              <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-accent-emerald text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-accent-emerald text-xs flex items-center gap-2">
                 <Check className="w-4 h-4 shrink-0" />
                 {successMsg}
               </div>
             )}
             {errorMsg && (
-              <div className="p-3 rounded-lg bg-accent-rose/10 border border-accent-rose/20 text-accent-rose text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-accent-rose/10 border border-accent-rose/20 text-accent-rose text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 {errorMsg}
               </div>
@@ -307,132 +305,102 @@ export default function ProfilePage() {
         </Card>
       </motion.div>
 
-      {/* 2. STATS GRID */}
+      {/* Stats Grid */}
       <motion.div 
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
       >
-        {/* Maximum Active Streak */}
-        <motion.div variants={item}>
-          <Card className="bg-background-surface border-border-subtle">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">Max Active Streak</span>
-                <CardTitle className="text-2xl font-black mt-1 text-orange-400 font-mono flex items-baseline gap-1">
-                  {maxActiveStreak} <span className="text-xs text-text-secondary font-sans font-normal">days</span>
-                </CardTitle>
+        {statCards.map((stat) => (
+          <motion.div key={stat.label} variants={item}>
+            <div className="stat-card p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="workspace-eyebrow block mb-2">{stat.label}</span>
+                  <p className={`text-3xl font-display font-extrabold tracking-tight ${stat.color}`}>
+                    {stat.value}
+                    <span className="text-sm text-text-secondary font-sans font-medium ml-1">{stat.unit}</span>
+                  </p>
+                </div>
+                <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${stat.iconBg}`}>
+                  <stat.icon className={`w-5 h-5 ${stat.iconColor}`} />
+                </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/15 flex items-center justify-center shrink-0">
-                <Flame className="w-5 h-5 text-orange-500 fill-current" />
-              </div>
-            </CardHeader>
-          </Card>
-        </motion.div>
+            </div>
+          </motion.div>
+        ))}
 
-        {/* Max Longest Streak */}
+        {/* Freezes card */}
         <motion.div variants={item}>
-          <Card className="bg-background-surface border-border-subtle">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <div className="stat-card p-5">
+            <div className="flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">Longest Streak</span>
-                <CardTitle className="text-2xl font-black mt-1 text-accent-amber font-mono flex items-baseline gap-1">
-                  {maxLongestStreak} <span className="text-xs text-text-secondary font-sans font-normal">days</span>
-                </CardTitle>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/15 flex items-center justify-center shrink-0">
-                <Award className="w-5 h-5 text-accent-amber fill-current" />
-              </div>
-            </CardHeader>
-          </Card>
-        </motion.div>
-
-        {/* Total Solved */}
-        <motion.div variants={item}>
-          <Card className="bg-background-surface border-border-subtle">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">Total Solved</span>
-                <CardTitle className="text-2xl font-black mt-1 text-accent-emerald font-mono flex items-baseline gap-1">
-                  {cumulativeSolved} <span className="text-xs text-text-secondary font-sans font-normal">problems</span>
-                </CardTitle>
-              </div>
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/15 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-accent-emerald" />
-              </div>
-            </CardHeader>
-          </Card>
-        </motion.div>
-
-        {/* Total Freezes */}
-        <motion.div variants={item}>
-          <Card className="bg-background-surface border-border-subtle">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <div>
-                <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider block">Total Freezes Left</span>
-                <CardTitle className="text-2xl font-black mt-1 text-purple-400 font-mono flex items-center gap-2.5">
+                <span className="workspace-eyebrow block mb-2">Total Freezes Left</span>
+                <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1 group/tooltip relative cursor-help" title="Missing a day consumes one freeze and protects your streak.">
                     {Array.from({ length: Math.max(2, totalFreezes) }).map((_, i) => (
-                      <span key={i} className="text-sm">
+                      <span key={i} className="text-base">
                         {i < totalFreezes ? '❄️' : '⚫'}
                       </span>
                     ))}
-                    {/* Tooltip */}
-                    <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-black border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
+                    <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2.5 rounded-lg bg-tooltip border border-border-subtle text-[10px] text-text-secondary font-sans pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
                       Missing a day consumes one freeze and protects your streak.
                     </span>
                   </div>
-                  <span className="text-xs text-text-secondary font-sans font-normal">({totalFreezes} left)</span>
-                </CardTitle>
+                  <span className="text-sm text-text-secondary font-medium">({totalFreezes} left)</span>
+                </div>
               </div>
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/15 flex items-center justify-center shrink-0">
+              <div className="w-11 h-11 rounded-xl bg-purple-500/10 border border-purple-500/15 flex items-center justify-center shrink-0">
                 <Snowflake className="w-5 h-5 text-purple-400" />
               </div>
-            </CardHeader>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       </motion.div>
 
-      {/* 3. CHARTS AND DETAILS ROW */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Card: Group Breakdown (Horizontal Charts) */}
-        <Card className="lg:col-span-2 bg-background-surface border-border-subtle">
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2 premium-card">
           <CardHeader className="pb-4">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-accent-indigo" />
-              <CardTitle className="text-white font-extrabold text-lg">Squad Breakdown</CardTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4 text-accent-indigo" />
+              </div>
+              <div>
+                <CardTitle className="text-text-primary text-lg">Squad Breakdown</CardTitle>
+                <CardDescription className="mt-0.5">Performance across your accountability squads</CardDescription>
+              </div>
             </div>
-            <CardDescription>Performance breakdown across your active accountability squads</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
             {!groups || groups.length === 0 ? (
-              <div className="py-12 text-center text-text-secondary text-xs italic">
-                No active accountability squads. Join a group to begin tracking breakdown stats.
+              <div className="py-14 text-center text-text-secondary text-sm">
+                No active squads yet. Join a group to begin tracking stats.
               </div>
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-6">
                 {groups.map((group) => {
                   const percentage = cumulativeSolved > 0 
                     ? Math.round((group.stats.totalSolved / cumulativeSolved) * 100) 
                     : 0;
 
                   return (
-                    <div key={group.id} className="space-y-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-white">{group.name}</span>
-                          <span className="font-mono text-[9px] text-text-muted">Invite: {group.inviteCode}</span>
+                    <div key={group.id} className="space-y-2.5">
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-semibold text-text-primary">{group.name}</span>
+                          <span className="font-mono text-[10px] text-text-muted px-2 py-0.5 rounded-md bg-surface-muted border border-faint">
+                            {group.inviteCode}
+                          </span>
                         </div>
-                        <span className="font-mono text-text-secondary font-bold">
+                        <span className="font-mono text-text-secondary font-semibold text-xs">
                           {group.stats.totalSolved} solves ({percentage}%)
                         </span>
                       </div>
                       
-                      {/* Bar visual representation */}
-                      <div className="w-full h-3 rounded-full bg-white/[0.03] border border-white/5 overflow-hidden flex">
+                      <div className="w-full h-2.5 rounded-full bg-surface-muted border border-faint overflow-hidden">
                         <motion.div 
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -441,15 +409,12 @@ export default function ProfilePage() {
                         />
                       </div>
 
-                      {/* Microstats row */}
-                      <div className="flex justify-start gap-4 text-[10px] font-mono text-text-muted mt-1">
+                      <div className="flex flex-wrap gap-3 text-[11px] font-mono text-text-muted">
                         <span className="flex items-center gap-1 text-orange-400">
-                          <Flame className="w-3 h-3 fill-current" /> Streak: {group.stats.currentStreak}d
+                          <Flame className="w-3 h-3 fill-current" /> {group.stats.currentStreak}d streak
                         </span>
-                        <span>•</span>
-                        <span>7 Days: {group.stats.last7DaysSolved} solves</span>
-                        <span>•</span>
-                        <span>30 Days: {group.stats.last30DaysSolved} solves</span>
+                        <span>7d: {group.stats.last7DaysSolved}</span>
+                        <span>30d: {group.stats.last30DaysSolved}</span>
                       </div>
                     </div>
                   );
@@ -459,61 +424,58 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Right Card: Weekly Consistency Target */}
-        <Card className="bg-background-surface border-border-subtle">
+        <Card className="premium-card">
           <CardHeader className="pb-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-accent-emerald" />
-              <CardTitle className="text-white font-extrabold text-lg">Consistency Velocity</CardTitle>
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-accent-emerald" />
+              </div>
+              <div>
+                <CardTitle className="text-text-primary text-lg">Consistency Velocity</CardTitle>
+                <CardDescription className="mt-0.5">Weekly and monthly solve targets</CardDescription>
+              </div>
             </div>
-            <CardDescription>Weekly and monthly rolling solution targets</CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-6">
-            {/* Rolling Metrics */}
-            <div className="space-y-4">
-              {/* Last 7 Days */}
-              <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-text-secondary font-medium">Last 7 Days Solves</span>
-                  <span className="font-mono font-bold text-accent-indigo">{last7DaysSolved} Solved</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/[0.03] overflow-hidden">
-                  <div 
-                    className="h-full bg-accent-indigo rounded-full" 
-                    style={{ width: `${Math.min((last7DaysSolved / 7) * 100, 100)}%` }} 
-                  />
-                </div>
-                <p className="text-[10px] text-text-muted font-sans mt-1">
-                  Target: 7 solves (1 problem per day). Current: {Math.round((last7DaysSolved / 7) * 100)}% velocity.
-                </p>
+          <CardContent className="space-y-5">
+            <div className="p-4 rounded-xl bg-surface-subtle border border-faint space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-text-secondary font-medium">Last 7 Days</span>
+                <span className="font-mono font-semibold text-accent-indigo">{last7DaysSolved} solved</span>
               </div>
-
-              {/* Last 30 Days */}
-              <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-text-secondary font-medium">Last 30 Days Solves</span>
-                  <span className="font-mono font-bold text-accent-emerald">{last30DaysSolved} Solved</span>
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/[0.03] overflow-hidden">
-                  <div 
-                    className="h-full bg-accent-emerald rounded-full" 
-                    style={{ width: `${Math.min((last30DaysSolved / 30) * 100, 100)}%` }} 
-                  />
-                </div>
-                <p className="text-[10px] text-text-muted font-sans mt-1">
-                  Target: 30 solves. Current: {Math.round((last30DaysSolved / 30) * 100)}% velocity.
-                </p>
+              <div className="w-full h-2 rounded-full bg-surface-muted overflow-hidden">
+                <div 
+                  className="h-full bg-accent-indigo rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min((last7DaysSolved / 7) * 100, 100)}%` }} 
+                />
               </div>
+              <p className="text-[11px] text-text-muted">
+                {Math.round((last7DaysSolved / 7) * 100)}% of daily target
+              </p>
             </div>
 
-            {/* Inactivity Freeze Rule Box */}
-            <div className="p-3.5 rounded-xl bg-[#1C1829]/40 border border-purple-500/10 text-xs text-left">
-              <h5 className="font-bold text-purple-300 flex items-center gap-1 mb-1">
-                <Snowflake className="w-3.5 h-3.5 text-purple-400" /> Streak Freeze Rules
+            <div className="p-4 rounded-xl bg-surface-subtle border border-faint space-y-2.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-text-secondary font-medium">Last 30 Days</span>
+                <span className="font-mono font-semibold text-accent-emerald">{last30DaysSolved} solved</span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-surface-muted overflow-hidden">
+                <div 
+                  className="h-full bg-accent-emerald rounded-full transition-all duration-500" 
+                  style={{ width: `${Math.min((last30DaysSolved / 30) * 100, 100)}%` }} 
+                />
+              </div>
+              <p className="text-[11px] text-text-muted">
+                {Math.round((last30DaysSolved / 30) * 100)}% of monthly target
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/15 text-xs">
+              <h5 className="font-semibold text-purple-400 flex items-center gap-1.5 mb-1.5">
+                <Snowflake className="w-3.5 h-3.5" /> Streak Freeze Rules
               </h5>
               <p className="text-[11px] text-text-secondary leading-relaxed">
-                Streaks are reset at midnight. If you fail to submit a solve, a streak freeze is automatically consumed (max 2 per group). Replenish streak freezes by keeping a 7-day consistency streak!
+                Streaks reset at midnight. Missing a solve consumes a freeze (max 2 per group). Keep a 7-day streak to replenish!
               </p>
             </div>
           </CardContent>

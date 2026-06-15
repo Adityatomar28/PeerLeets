@@ -12,6 +12,8 @@ import GroupDetails from '../pages/GroupDetails';
 import Profile from '../pages/Profile';
 import GroupHistory from '../pages/GroupHistory';
 import GroupMembers from '../pages/GroupMembers';
+import Groups from '../pages/Groups';
+import Challenges from '../pages/Challenges';
 import NotFound from '../pages/NotFound';
 
 export default function AppRoutes() {
@@ -52,6 +54,26 @@ export default function AppRoutes() {
           <AuthGuard>
             <AppLayout>
               <Dashboard />
+            </AppLayout>
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/groups"
+        element={
+          <AuthGuard>
+            <AppLayout>
+              <Groups />
+            </AppLayout>
+          </AuthGuard>
+        }
+      />
+      <Route
+        path="/challenges"
+        element={
+          <AuthGuard>
+            <AppLayout>
+              <Challenges />
             </AppLayout>
           </AuthGuard>
         }

@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import {
+  Show,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+} from '@clerk/react';
 import { 
   Play, Sparkles, Flame, Trophy, ArrowRight, Menu, X, Users, Snowflake, 
   Code2, CalendarRange, Activity, Terminal, CheckCircle2, 
@@ -210,28 +216,21 @@ export default function Landing() {
   // FAQ Accordion State
   const [openFaqs, setOpenFaqs] = useState<Record<number, boolean>>({});
 
-  // Form Submission
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [groupName, setGroupName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   // Demo Modal
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
 
   // Live Socket Feed Simulation State
   const [socketLogs, setSocketLogs] = useState<{ id: string; msg: string; time: string; tag: string; type: string }[]>([
     { id: '1', msg: 'Aditya Tomar solved "Merge Intervals" (LeetCode Medium) 🔥', time: 'Just now', tag: 'Streak: 45 days', type: 'solve' },
-    { id: '2', msg: 'Pooja Sharma reached "Grandmaster Solver" XP milestone 🏆', time: '2m ago', tag: 'Level Up', type: 'milestone' },
+    { id: '2', msg: 'Rohan Verma reached "Grandmaster Solver" XP milestone 🏆', time: '2m ago', tag: 'Level Up', type: 'milestone' },
     { id: '3', msg: 'DevLoopers coordinator set today\'s challenge to "Two Sum" 🧠', time: '10m ago', tag: 'Challenge Pick', type: 'system' }
   ]);
 
   // Live Leaderboard Showcase State (Rank swap animation)
   const [leaderboardPlayers, setLeaderboardPlayers] = useState<Player[]>([
     { id: 'a', name: 'Aditya Tomar', streak: 45, solved: 112, points: 1450, avatarBg: 'from-orange-500 to-red-500', movement: 'same' },
-    { id: 'b', name: 'Pooja Sharma', streak: 32, solved: 94, points: 1380, avatarBg: 'from-indigo-500 to-purple-500', movement: 'same' },
-    { id: 'c', name: 'Rohan Verma', streak: 18, solved: 76, points: 1120, avatarBg: 'from-emerald-500 to-teal-500', movement: 'same' },
-    { id: 'd', name: 'Kunal Patel', streak: 12, solved: 54, points: 980, avatarBg: 'from-pink-500 to-rose-500', movement: 'same' }
+    { id: 'c', name: 'Rohan Verma', streak: 32, solved: 94, points: 1380, avatarBg: 'from-emerald-500 to-teal-500', movement: 'same' },
+    { id: 'd', name: 'Kunal Patel', streak: 18, solved: 76, points: 1120, avatarBg: 'from-pink-500 to-rose-500', movement: 'same' },
   ]);
 
   // Testimonials state
@@ -284,7 +283,7 @@ export default function Landing() {
       });
       
       // Push event into socket feed
-      const names = ['Aditya Tomar', 'Pooja Sharma', 'Rohan Verma', 'Kunal Patel'];
+      const names = ['Aditya Tomar', 'Rohan Verma', 'Kunal Patel'];
       const challenges = ['Merge Intervals', 'Two Sum', 'LRU Cache', 'Valid Parentheses', 'Climbing Stairs'];
       const randName = names[Math.floor(Math.random() * names.length)];
       const randChallenge = challenges[Math.floor(Math.random() * challenges.length)];
@@ -360,22 +359,6 @@ export default function Landing() {
       return;
     }
     toast.success(`Redirecting to join squad: ${inviteCode.toUpperCase()}`);
-  };
-
-  const handleSignupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !password || !groupName) {
-      toast.error("Please fill in all registration fields!");
-      return;
-    }
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      toast.success(`Account created! Group '${groupName}' has been initialized.`);
-      setEmail('');
-      setPassword('');
-      setGroupName('');
-    }, 1500);
   };
 
   const testimonials = [
@@ -465,17 +448,27 @@ export default function Landing() {
               {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-500" />}
             </button>
 
-            <Link to="/login" className="font-sans font-semibold text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
-              Login
-            </Link>
-            <Link to="/signup">
-              <Button size="sm" className="relative overflow-hidden group">
-                <span className="relative z-10 flex items-center gap-1">
-                  Start Your First Group <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </Button>
-            </Link>
+            <Show when="signed-out">
+              <SignInButton mode="modal">
+                <button className="font-sans font-semibold text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer">
+                  Login
+                </button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm" className="relative overflow-hidden group">
+                  <span className="relative z-10 flex items-center gap-1">
+                    Start Your First Group <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </Button>
+              </SignUpButton>
+            </Show>
+            <Show when="signed-in">
+              <Link to="/dashboard">
+                <Button size="sm" variant="secondary">Dashboard</Button>
+              </Link>
+              <UserButton />
+            </Show>
           </div>
 
           <button className="md:hidden text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 flex items-center gap-2" onClick={() => setIsOpen(!isOpen)}>
@@ -566,7 +559,7 @@ export default function Landing() {
           <div className="space-y-2.5">
             {[
               { rank: 1, name: 'Aditya Tomar', streak: 45, pts: 1450 },
-              { rank: 2, name: 'Pooja Sharma', streak: 32, pts: 1380 }
+              { rank: 2, name: 'Rohan Verma', streak: 32, pts: 1380 }
             ].map((u) => (
               <div key={u.rank} className="flex justify-between items-center text-xs p-2.5 rounded-xl bg-[var(--bg-base)]/40 border border-[var(--border-subtle)]">
                 <div className="flex items-center gap-2">
@@ -1132,8 +1125,8 @@ export default function Landing() {
                   >
                     {[
                       { rank: 1, name: 'Aditya Tomar', streak: 45, solved: 112, pts: 1450, status: 'Solved 🔥' },
-                      { rank: 2, name: 'Pooja Sharma', streak: 32, solved: 94, pts: 1380, status: 'Solved 🔥' },
-                      { rank: 3, name: 'Rohan Verma', streak: 18, solved: 76, pts: 1120, status: 'Pending ⋯' }
+                      { rank: 2, name: 'Rohan Verma', streak: 32, solved: 94, pts: 1380, status: 'Solved 🔥' },
+                      { rank: 3, name: 'Kunal Patel', streak: 18, solved: 76, pts: 1120, status: 'Pending ⋯' }
                     ].map((user) => (
                       <div key={user.rank} className="flex justify-between items-center p-3.5 rounded-xl bg-[var(--bg-base)]/50 border border-[var(--border-subtle)]">
                         <div className="flex items-center gap-3">
@@ -1201,8 +1194,8 @@ export default function Landing() {
                   >
                     {[
                       { msg: 'Aditya Tomar completed Leetcode #56: Merge Intervals', tag: 'Streak: 45 days', time: '14m ago' },
-                      { msg: 'Pooja Sharma completed Leetcode #56: Merge Intervals', tag: 'Streak: 32 days', time: '2h ago' },
-                      { msg: 'Rohan Verma activated a Streak Freeze buffer', tag: 'Freeze active', time: '3h ago' }
+                      { msg: 'Rohan Verma completed Leetcode #56: Merge Intervals', tag: 'Streak: 32 days', time: '2h ago' },
+                      { msg: 'Kunal Patel activated a Streak Freeze buffer', tag: 'Freeze active', time: '3h ago' }
                     ].map((item, i) => (
                       <div key={i} className="flex justify-between items-center p-3.5 rounded-xl bg-[var(--bg-base)]/50 border border-[var(--border-subtle)] text-xs">
                         <div className="flex items-center gap-2.5">
@@ -1507,11 +1500,10 @@ export default function Landing() {
       </section>
 
       {/* SECTION 12: FINAL CLOSING CTA SIGNUP BANNER */}
-      <section className="py-32 border-t border-[var(--border-subtle)] relative z-10">
+      <section className="py-32 border-t border-[var(--border-subtle)] relative z-20">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-[var(--bg-surface)]/85 border border-[var(--border-subtle)] p-8 sm:p-14 rounded-3xl backdrop-blur-md shadow-2xl relative overflow-hidden text-center">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
-            <div className="glow-spot-2 -top-40 -right-40" />
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-8 sm:p-14 rounded-3xl shadow-2xl relative overflow-hidden text-center">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent pointer-events-none" />
 
             <span className="text-[10px] font-mono text-indigo-500 font-bold tracking-widest uppercase block mb-3">Instant Join</span>
             <h2 className="font-display font-extrabold text-3xl sm:text-5xl text-[var(--text-primary)] mb-4 leading-tight">Start Building Consistency Today</h2>
@@ -1519,71 +1511,46 @@ export default function Landing() {
               Join thousands of developers keeping each other accountable. Create a group, invite friends, and master problem solving together.
             </p>
 
-            <form onSubmit={handleSignupSubmit} className="max-w-md mx-auto space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left">
-                <div className="sm:col-span-2">
-                  <label className="text-[10px] font-mono text-[var(--text-secondary)] uppercase tracking-wider block mb-1">Squad Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="e.g. Algorithms Elite"
-                    value={groupName}
-                    onChange={(e) => setGroupName(e.target.value)}
-                    required
-                    className="w-full bg-[var(--bg-base)]/80 border border-[var(--border-subtle)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-indigo-500/35 focus:outline-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-mono text-[var(--text-secondary)] uppercase tracking-wider block mb-1">Email Address</label>
-                  <input 
-                    type="email" 
-                    placeholder="name@domain.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    className="w-full bg-[var(--bg-base)]/80 border border-[var(--border-subtle)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-indigo-500/35 focus:outline-none transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-mono text-[var(--text-secondary)] uppercase tracking-wider block mb-1">Create Password</label>
-                  <input 
-                    type="password" 
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="w-full bg-[var(--bg-base)]/80 border border-[var(--border-subtle)] rounded-xl px-4 py-3 text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-indigo-500/35 focus:outline-none transition-colors"
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" isLoading={isSubmitting} className="w-full py-3.5 text-xs font-bold bg-indigo-500 hover:bg-indigo-600 transition-colors mt-2">
-                Create Free Account
-              </Button>
-
-              <span className="text-[10px] text-[var(--text-muted)] block mt-4">
-                No credit card required • Instant dashboard sync • 2 Free freezes included
-              </span>
+            <form className="relative z-10 max-w-md mx-auto space-y-4 text-center">
+              <SignUpButton mode="redirect" forceRedirectUrl="/signup">
+                <Button className="w-full py-3.5 text-sm font-bold">
+                  Create Free Account
+                </Button>
+              </SignUpButton>
+              <p className="text-[11px] text-text-muted">
+                No credit card required • Instant dashboard sync • 2 free freezes included
+              </p>
             </form>
           </div>
         </div>
       </section>
 
       {/* FOOTER */}
-      <footer className="py-16 border-t border-[var(--border-subtle)] bg-[#03050A] relative z-10">
+      <footer className="py-16 border-t border-[var(--border-subtle)] bg-[var(--bg-base)] relative z-20">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-indigo-500 flex items-center justify-center">
                 <Users className="w-4 h-4 text-white" />
               </div>
-              <span className="font-display font-extrabold text-sm tracking-tight text-white">PeerSolve</span>
+              <span className="font-display font-extrabold text-sm tracking-tight text-[var(--text-primary)]">PeerSolve</span>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-8 text-[11px] text-[var(--text-secondary)] font-medium">
-              <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors">Contact Support</a>
-              <a href="#" className="hover:text-white transition-colors">Developer Portal</a>
+            <div className="flex flex-wrap justify-center items-center gap-6 text-[11px] text-[var(--text-secondary)] font-medium">
+              <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-[var(--text-primary)] transition-colors">Contact Support</a>
+              <a
+                href="https://www.linkedin.com/in/aditya-singh-tomar-1683a3279/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 hover:text-[var(--text-primary)] transition-colors"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.062 2.062 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+                Aditya Singh Tomar
+              </a>
             </div>
 
             <span className="font-sans text-[10px] text-[var(--text-muted)]">

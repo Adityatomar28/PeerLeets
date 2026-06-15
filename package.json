@@ -2,8 +2,20 @@
   "name": "peersolve",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": ">=20 <25"
+  },
   "main": "index.js",
   "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:api": "tsx watch Backend/src/server.js",
+    "dev:web": "npm run dev --prefix Frontend",
+    "build": "npm ci --prefix Frontend && npm run prisma:generate && npm run build --prefix Frontend",
+    "start": "node Backend/src/server.js",
+    "prisma:generate": "prisma generate --config Backend/prisma.config.ts",
+    "prisma:validate": "prisma validate --config Backend/prisma.config.ts",
+    "prisma:deploy": "prisma migrate deploy --config Backend/prisma.config.ts",
+    "check": "npm run prisma:validate && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,6 +23,7 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@clerk/backend": "^3.7.0",
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",

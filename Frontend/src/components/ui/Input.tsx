@@ -14,7 +14,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           "flex h-11 w-full rounded-lg border bg-background-surface/50 px-3.5 py-2 text-sm text-text-primary font-sans transition-all file:border-0 file:bg-transparent file:text-sm file:font-semibold placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50",
           error 
             ? "border-accent-rose focus-visible:ring-accent-rose" 
-            : "border-border-subtle focus-visible:border-white/20",
+            : "border-border-subtle focus-visible:border-indigo-500/50 focus-visible:ring-indigo-500/15",
           className
         )}
         ref={ref}

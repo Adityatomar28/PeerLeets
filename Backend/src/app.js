@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import authRoutes from "./modules/auth/auth.routes.js";
 import groupRoutes from "./modules/group/group.routes.js";
 import challengeRoutes from "./modules/challenge/challenge.routes.js";
@@ -26,8 +27,35 @@ initRealtimeEventBridge();
 startCronSchedulers();
 
 const app = express();
+// Enable CORS. Configure `CORS_ORIGIN` in production (e.g. your frontend URL).
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+	.split(',')
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+
+const corsOptions = {
+	origin(origin, callback) {
+		if (!origin || allowedOrigins.includes(origin)) {
+			callback(null, true);
+			return;
+		}
+		callback(new Error(`Origin ${origin} is not allowed by CORS`));
+	},
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
+app.get("/api/health", (_req, res) => {
+	res.status(200).json({
+		success: true,
+		data: {
+			status: "ok",
+			timestamp: new Date().toISOString(),
+		},
+	});
+});
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/groups", challengeRoutes);

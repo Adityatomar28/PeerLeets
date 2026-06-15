@@ -29,12 +29,17 @@ export default {
         },
         border: {
           subtle: 'var(--border-subtle)',
+          cardHover: 'var(--border-card-hover)',
           glow: 'rgba(99, 102, 241, 0.25)',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Outfit', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['"DM Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      letterSpacing: {
+        eyebrow: '0.12em',
       },
       boxShadow: {
         glow: '0 0 20px rgba(99, 102, 241, 0.15)',

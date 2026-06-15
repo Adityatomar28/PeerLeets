@@ -634,13 +634,15 @@ export default function GroupRoomPage() {
   return (
     <div className="space-y-8 text-left max-w-6xl mx-auto">
       {/* 1. GROUP HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle pb-6">
+      <div className="profile-hero p-6 md:p-8">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
+          <p className="workspace-eyebrow mb-2">Squad Room</p>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-display font-extrabold text-2xl md:text-3xl text-white">{group.name}</h1>
+            <h1 className="font-display font-extrabold text-2xl md:text-3xl text-text-primary tracking-tight">{group.name}</h1>
             <button
               onClick={copyInviteCode}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background-surfaceLight border border-border-subtle hover:border-white/20 transition-all font-mono text-[10px] font-semibold text-text-secondary hover:text-white cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-background-surfaceLight border border-border-subtle hover:border-border-cardHover transition-all font-mono text-[10px] font-semibold text-text-secondary hover:text-text-primary cursor-pointer"
             >
               Code: {group.inviteCode} <Copy className="w-3 h-3" />
             </button>
@@ -651,7 +653,7 @@ export default function GroupRoomPage() {
             <span>•</span>
             <span className="text-indigo-400">Today's Challenger: {currentChallengerName}</span>
             <span>•</span>
-            <span>Challenge Status: <strong className="text-white uppercase text-[10px]">{challenge?.status || 'WAITING'}</strong></span>
+            <span>Challenge Status: <strong className="text-text-primary uppercase text-[10px]">{challenge?.status || 'WAITING'}</strong></span>
           </div>
         </div>
 
@@ -678,6 +680,7 @@ export default function GroupRoomPage() {
             </Button>
           )}
         </div>
+        </div>
       </div>
 
       {/* Grid Content Layout */}
@@ -694,7 +697,7 @@ export default function GroupRoomPage() {
             <Card className="bg-background-surface border-border-subtle p-6">
               <CardHeader className="p-0 mb-4">
                 <span className="text-[10px] font-mono text-accent-indigo font-bold uppercase tracking-wider block">Today's Challenge</span>
-                <CardTitle className="text-white mt-1">Challenge slot not initialized</CardTitle>
+                <CardTitle className="text-text-primary mt-1">Challenge slot not initialized</CardTitle>
               </CardHeader>
               <CardContent className="p-0 mb-6">
                 <p className="font-sans text-xs text-text-secondary leading-relaxed">
@@ -706,8 +709,8 @@ export default function GroupRoomPage() {
               </Button>
             </Card>
           ) : (
-            <Card className="bg-background-surface border-border-subtle overflow-hidden">
-              <div className="bg-[#121620] px-6 py-3.5 border-b border-border-subtle flex justify-between items-center">
+            <Card className="premium-card overflow-hidden">
+              <div className="bg-challenge-header px-6 py-3.5 border-b border-border-subtle flex justify-between items-center">
                 <span className="text-[10px] font-mono text-text-muted uppercase tracking-wider">Today's Challenge Task</span>
                 <span className={`px-2.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wide ${
                   challenge.status === 'ACTIVE' 
@@ -725,26 +728,26 @@ export default function GroupRoomPage() {
                 {challenge.status === 'WAITING' && (
                   <div className="flex flex-col items-center justify-center py-6 text-center">
                     {/* SVG friendly illustration */}
-                    <div className="w-16 h-16 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-center mb-6 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-surface-muted border border-faint flex items-center justify-center mb-6 relative">
                       <Clock className="w-7 h-7 text-text-secondary animate-pulse" />
                       <div className="absolute inset-0 rounded-2xl border border-indigo-500/25 border-dashed animate-spin" style={{ animationDuration: '8s' }} />
                     </div>
 
-                    <h3 className="font-display font-extrabold text-base text-white mb-1">Waiting For Today's Challenge</h3>
+                    <h3 className="font-display font-extrabold text-base text-text-primary mb-1">Waiting For Today's Challenge</h3>
                     <p className="font-sans text-xs text-text-secondary max-w-sm mb-4 leading-relaxed">
-                      Today's assigned challenger is <strong className="text-white">{currentChallengerName}</strong>. 
+                      Today's assigned challenger is <strong className="text-text-primary">{currentChallengerName}</strong>. 
                       Once they post the coding problem, the squad room will activate.
                     </p>
 
                     {/* Countdown indicator */}
-                    <div className="px-4 py-2.5 rounded-xl bg-white/[0.01] border border-white/5 font-mono text-xs text-text-secondary mb-6 flex items-center gap-2">
+                    <div className="px-4 py-2.5 rounded-xl bg-surface-subtle border border-faint font-mono text-xs text-text-secondary mb-6 flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                       <span>Cutoff Countdown: <strong>{String(countdown.hours).padStart(2, '0')}h {String(countdown.minutes).padStart(2, '0')}m {String(countdown.seconds).padStart(2, '0')}s</strong></span>
                     </div>
 
                     {isUserChallenger && (
-                      <div className="p-5 rounded-2xl bg-[#121620]/50 border border-indigo-500/15 max-w-md w-full">
-                        <h4 className="font-display font-bold text-xs text-white mb-1.5 flex items-center justify-center gap-1.5">
+                      <div className="p-5 rounded-2xl bg-surface-subtle border border-indigo-500/15 max-w-md w-full">
+                        <h4 className="font-display font-bold text-xs text-text-primary mb-1.5 flex items-center justify-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-indigo-400" /> You are the challenger today!
                         </h4>
                         <p className="font-sans text-[11px] text-text-secondary mb-4 leading-normal">
@@ -775,7 +778,7 @@ export default function GroupRoomPage() {
                           </span>
                           <span className="text-[10px] font-mono text-text-muted">Challenge #today</span>
                         </div>
-                        <h3 className="font-display font-extrabold text-lg sm:text-xl text-white">
+                        <h3 className="font-display font-extrabold text-lg sm:text-xl text-text-primary">
                           {problemTitle}
                         </h3>
                       </div>
@@ -783,24 +786,24 @@ export default function GroupRoomPage() {
                       {/* Active Challenger */}
                       <div className="text-xs text-text-secondary sm:text-right shrink-0">
                         <span className="block text-[9px] font-mono text-text-muted uppercase">Posted By</span>
-                        <strong className="text-white">{currentChallengerName}</strong>
+                        <strong className="text-text-primary">{currentChallengerName}</strong>
                       </div>
                     </div>
 
                     {parsedChallenge.notes && (
-                      <div className="p-3.5 rounded-lg bg-white/[0.01] border border-white/5 text-xs text-text-secondary italic">
+                      <div className="p-3.5 rounded-lg bg-surface-subtle border border-faint text-xs text-text-secondary italic">
                         <strong>Challenger Notes:</strong> "{parsedChallenge.notes}"
                       </div>
                     )}
 
                     {/* TIMER SYSTEM BLOCK */}
                     {!hasUserSolved && (
-                      <div className="p-4 rounded-xl bg-[#121620]/50 border border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-border-subtle flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
                           <div className={`w-3 h-3 rounded-full ${timer.state === 'running' ? 'bg-orange-500 animate-pulse' : 'bg-text-muted'}`} />
                           <div>
                             <span className="text-[9px] font-mono text-text-muted uppercase block">Stopwatch Timer</span>
-                            <span className="font-mono text-xl font-bold text-white tracking-wider">
+                            <span className="font-mono text-xl font-bold text-text-primary tracking-wider">
                               {formatStopwatch(elapsedDisplay)}
                             </span>
                           </div>
@@ -812,14 +815,14 @@ export default function GroupRoomPage() {
                               <Play className="w-3.5 h-3.5 mr-1.5 fill-current" /> {timer.state === 'paused' ? 'Resume' : 'Start Timer'}
                             </Button>
                           ) : (
-                            <Button size="sm" variant="outline" className="flex-1 sm:flex-none text-orange-400 hover:text-white" onClick={handlePauseTimer}>
+                            <Button size="sm" variant="outline" className="flex-1 sm:flex-none text-orange-400 hover:text-text-primary" onClick={handlePauseTimer}>
                               <Pause className="w-3.5 h-3.5 mr-1.5 fill-current" /> Pause
                             </Button>
                           )}
                           {(timer.state === 'running' || timer.state === 'paused') && (
                             <button 
                               onClick={handleResetTimer}
-                              className="p-2 rounded-lg hover:bg-white/5 border border-transparent hover:border-white/5 text-text-secondary hover:text-white transition-colors cursor-pointer"
+                              className="p-2 rounded-lg hover:bg-surface-muted border border-transparent hover:border-faint text-text-secondary hover:text-text-primary transition-colors cursor-pointer"
                               title="Reset Timer"
                             >
                               <RotateCcw className="w-4 h-4" />
@@ -855,7 +858,7 @@ export default function GroupRoomPage() {
                     {/* Header */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-subtle/50 pb-4">
                       <div>
-                        <h4 className="font-display font-extrabold text-sm text-white flex items-center gap-2">
+                        <h4 className="font-display font-extrabold text-sm text-text-primary flex items-center gap-2">
                           <AlertCircle className="w-5 h-5 text-accent-rose" /> Challenge Closed
                         </h4>
                         <p className="font-sans text-xs text-text-secondary mt-1">
@@ -882,15 +885,15 @@ export default function GroupRoomPage() {
                     {/* Analytics Metrics Cards Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {/* Completion Rate */}
-                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Completion</span>
-                        <span className="text-xl font-mono font-bold text-white block mt-1">
+                        <span className="text-xl font-mono font-bold text-text-primary block mt-1">
                           {analytics.completionRate}%
                         </span>
                       </div>
 
                       {/* Total Solvers */}
-                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Total Solvers</span>
                         <span className="text-xl font-mono font-bold text-accent-emerald block mt-1">
                           {analytics.totalSolvers} solved
@@ -898,7 +901,7 @@ export default function GroupRoomPage() {
                       </div>
                       
                       {/* Average Solve Time */}
-                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Avg Duration</span>
                         <span className="text-xl font-mono font-bold text-accent-indigo block mt-1">
                           {formatDuration(analytics.averageSolveTime)}
@@ -906,7 +909,7 @@ export default function GroupRoomPage() {
                       </div>
  
                       {/* First Solver */}
-                      <div className="p-4 rounded-xl bg-white/[0.01] border border-white/5 text-left">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left">
                         <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">First Solver</span>
                         <span className="text-xs font-sans font-bold text-accent-amber block mt-2.5 truncate">
                           🏆 {analytics.firstSolver ? analytics.firstSolver.name : 'None'}
@@ -917,11 +920,11 @@ export default function GroupRoomPage() {
                     {/* Detailed Speeds & Misses Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {/* Solver Speeds */}
-                      <div className="p-4 rounded-xl bg-white/[0.005] border border-white/5 text-left text-xs space-y-2.5">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left text-xs space-y-2.5">
                         <h5 className="font-mono text-[9px] text-text-muted uppercase tracking-wider">Solve Speeds</h5>
                         <div className="flex justify-between items-center">
                           <span className="text-text-secondary">Fastest Solver:</span>
-                          <span className="font-semibold text-white font-mono">
+                          <span className="font-semibold text-text-primary font-mono">
                             {analytics.fastestSolver 
                               ? `${analytics.fastestSolver.name} (${formatDuration(analytics.fastestSolver.timeTaken || 0)})` 
                               : '-'}
@@ -929,7 +932,7 @@ export default function GroupRoomPage() {
                         </div>
                         <div className="flex justify-between items-center">
                           <span className="text-text-secondary">Slowest Solver:</span>
-                          <span className="font-semibold text-white font-mono">
+                          <span className="font-semibold text-text-primary font-mono">
                             {analytics.slowestSolver 
                               ? `${analytics.slowestSolver.name} (${formatDuration(analytics.slowestSolver.timeTaken || 0)})` 
                               : '-'}
@@ -938,7 +941,7 @@ export default function GroupRoomPage() {
                       </div>
 
                       {/* Inactivity & Freeze Consumed */}
-                      <div className="p-4 rounded-xl bg-white/[0.005] border border-white/5 text-left text-xs space-y-2.5">
+                      <div className="p-4 rounded-xl bg-surface-subtle border border-faint text-left text-xs space-y-2.5">
                         <h5 className="font-mono text-[9px] text-text-muted uppercase tracking-wider">Streak Impact</h5>
                         <div className="flex justify-between items-center">
                           <span className="text-text-secondary">Missed Users:</span>
@@ -957,7 +960,7 @@ export default function GroupRoomPage() {
                     {/* Visual stacked bar chart representation */}
                     <div className="space-y-1.5 text-left">
                       <span className="text-[9px] font-mono text-text-muted uppercase tracking-wider block">Participation Allocation</span>
-                      <div className="w-full h-3 rounded-full bg-white/[0.03] overflow-hidden flex">
+                      <div className="w-full h-3 rounded-full bg-surface-muted overflow-hidden flex">
                         {grid.solved.length > 0 && (
                           <div 
                             className="bg-accent-emerald h-full" 
@@ -997,11 +1000,11 @@ export default function GroupRoomPage() {
             {gridLoading ? (
               <Skeleton className="h-56 w-full" />
             ) : grid ? (
-              <Card className="bg-background-surface border-border-subtle text-left">
+              <Card className="premium-card text-left">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <div>
-                      <CardTitle className="text-white font-extrabold flex items-center gap-2 text-lg">
+                      <CardTitle className="text-text-primary font-extrabold flex items-center gap-2 text-lg">
                         Participation Matrix
                       </CardTitle>
                       <CardDescription>Real-time status updates of active members</CardDescription>
@@ -1024,12 +1027,12 @@ export default function GroupRoomPage() {
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
                         {grid.solved.map((u) => (
-                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.01] border border-white/5">
+                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-surface-subtle border border-faint">
                             <div className="flex items-center gap-2.5">
                               <div className="w-6 h-6 rounded-full bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center font-bold text-[10px] text-accent-emerald uppercase">
                                 {u.name[0]}
                               </div>
-                              <span className="font-sans text-xs text-white font-semibold">{u.name}</span>
+                              <span className="font-sans text-xs text-text-primary font-semibold">{u.name}</span>
                             </div>
                             <span className="font-mono text-[10px] text-text-secondary">
                               {u.timeTaken ? `${formatDuration(u.timeTaken)} taken` : 'solved'}
@@ -1050,7 +1053,7 @@ export default function GroupRoomPage() {
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
                         {grid.pending.map((u) => (
-                          <div key={u.userId} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-white/[0.005] border border-white/5">
+                          <div key={u.userId} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-surface-subtle border border-faint">
                             <div className="w-6 h-6 rounded-full bg-amber-500/10 border border-amber-500/25 flex items-center justify-center font-bold text-[10px] text-accent-amber uppercase">
                               {u.name[0]}
                             </div>
@@ -1069,7 +1072,7 @@ export default function GroupRoomPage() {
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pl-3">
                         {grid.missed.map((u) => (
-                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-[#1F192E]/30 border border-purple-500/10">
+                          <div key={u.userId} className="flex items-center justify-between p-2.5 rounded-lg bg-purple-500/5 border border-purple-500/15">
                             <div className="flex items-center gap-2.5">
                               <div className="w-6 h-6 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center font-bold text-[10px] text-purple-300 uppercase">
                                 {u.name[0]}
@@ -1093,14 +1096,14 @@ export default function GroupRoomPage() {
           {historyLoading ? (
             <Skeleton className="h-44 w-full" />
           ) : history && history.length > 0 ? (
-            <Card className="bg-background-surface border-border-subtle">
+            <Card className="premium-card">
               <CardHeader className="pb-4 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-white font-extrabold text-lg">Challenge History Preview</CardTitle>
+                  <CardTitle className="text-text-primary font-extrabold text-lg">Challenge History Preview</CardTitle>
                   <CardDescription>Recent challenges completed in this group</CardDescription>
                 </div>
                 <Link to={`/groups/${groupId}/history`}>
-                  <Button variant="ghost" size="sm" className="text-xs text-indigo-400 hover:text-white">
+                  <Button variant="ghost" size="sm" className="text-xs text-indigo-400 hover:text-text-primary">
                     View Full History <ChevronRight className="w-4 h-4 ml-0.5" />
                   </Button>
                 </Link>
@@ -1110,11 +1113,11 @@ export default function GroupRoomPage() {
                   const parsedHist = parseProblemLink(hist.problemLink);
                   const title = parsedHist.url ? getProblemTitleFromUrl(parsedHist.url) : 'Challenge Slot';
                   return (
-                    <div key={hist.id} className="flex items-center justify-between p-3.5 rounded-lg bg-white/[0.01] border border-white/5 text-xs">
+                    <div key={hist.id} className="flex items-center justify-between p-3.5 rounded-lg bg-surface-subtle border border-faint text-xs">
                       <div className="flex items-center gap-3">
                         <Calendar className="w-4 h-4 text-text-muted" />
                         <span className="font-mono text-text-secondary">{new Date(hist.date).toLocaleDateString()}</span>
-                        <span className="text-white font-semibold truncate max-w-[150px] sm:max-w-[300px]">{title}</span>
+                        <span className="text-text-primary font-semibold truncate max-w-[150px] sm:max-w-[300px]">{title}</span>
                       </div>
                       {parsedHist.url && (
                         <a
@@ -1139,9 +1142,9 @@ export default function GroupRoomPage() {
 
           {/* USER'S GROUP STATS & FREEZES CARD */}
           {userStats && (
-            <Card className="bg-background-surface border-border-subtle">
+            <Card className="premium-card">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white font-extrabold text-sm flex items-center gap-2">
+                <CardTitle className="text-text-primary font-extrabold text-sm flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-indigo-400" /> Your Consistency stats
                 </CardTitle>
                 <CardDescription>Streaks and freezes left in this group</CardDescription>
@@ -1149,20 +1152,20 @@ export default function GroupRoomPage() {
               <CardContent className="pb-4 border-b border-border-subtle/50">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="text-[9px] font-mono text-text-muted uppercase block">Active Streak</span>
-                    <span className="font-mono text-base font-bold text-orange-400 flex items-center gap-1 mt-1">
+                    <span className="workspace-eyebrow block">Active Streak</span>
+                    <span className="font-mono text-base font-bold text-streak text-orange-400 flex items-center gap-1 mt-1">
                       <Flame className="w-4 h-4 fill-current" /> {userStats.currentStreak}d
                     </span>
                   </div>
                   <div>
-                    <span className="text-[9px] font-mono text-text-muted uppercase block">Longest Streak</span>
-                    <span className="font-mono text-base font-bold text-white mt-1">
+                    <span className="workspace-eyebrow block">Longest Streak</span>
+                    <span className="font-mono text-base font-bold text-text-primary mt-1">
                       {userStats.longestStreak}d
                     </span>
                   </div>
                 </div>
               </CardContent>
-              <div className="px-6 py-3.5 bg-[#121620]/30 flex justify-between items-center text-xs">
+              <div className="px-6 py-3.5 bg-card-footer flex justify-between items-center text-xs">
                 <span className="text-text-secondary font-medium font-mono text-[9px] uppercase">Streak Freezes</span>
                 <div className="flex items-center gap-1 group/tooltip relative cursor-help" title="Missing a day consumes one freeze and protects your streak.">
                   {Array.from({ length: 2 }).map((_, i) => (
@@ -1171,7 +1174,7 @@ export default function GroupRoomPage() {
                     </span>
                   ))}
                   {/* Custom Tooltip */}
-                  <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-black border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
+                  <span className="absolute bottom-full mb-2.5 left-1/2 -translate-x-1/2 w-48 p-2 rounded-lg bg-tooltip border border-border-subtle text-[10px] text-text-secondary font-sans font-normal pointer-events-none opacity-0 group-hover/tooltip:opacity-100 transition-all z-20 text-center leading-normal shadow-glow">
                     Missing a day consumes one freeze and protects your streak.
                   </span>
                 </div>
@@ -1183,9 +1186,9 @@ export default function GroupRoomPage() {
           {boardLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : leaderboard ? (
-            <Card className="bg-background-surface border-border-subtle">
+            <Card className="premium-card">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white font-extrabold flex items-center gap-2 text-lg">
+                <CardTitle className="text-text-primary font-extrabold flex items-center gap-2 text-lg">
                   <Trophy className="w-4 h-4 text-accent-amber fill-current" /> Consistency Ladder
                 </CardTitle>
                 <CardDescription>Rankings based on active streaks and scores</CardDescription>
@@ -1199,7 +1202,7 @@ export default function GroupRoomPage() {
                         <motion.div
                           key={userRow.userId}
                           layout
-                          className="flex items-center justify-between px-6 py-4 border-b border-border-subtle/30 last:border-none hover:bg-white/[0.005]"
+                          className="flex items-center justify-between px-6 py-4 border-b border-border-subtle/30 last:border-none hover:bg-surface-subtle transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <span className="font-mono text-xs font-black text-text-muted w-4">#{idx + 1}</span>
@@ -1207,7 +1210,7 @@ export default function GroupRoomPage() {
                               {userRow.name[0]}
                             </div>
                             <div>
-                              <span className="font-sans font-bold text-xs text-white block truncate max-w-[100px]">{userRow.name}</span>
+                              <span className="font-sans font-bold text-xs text-text-primary block truncate max-w-[100px]">{userRow.name}</span>
                               {change === 'up' && (
                                 <span className="text-[8px] font-mono text-accent-emerald flex items-center gap-0.5 mt-0.5">
                                   ▲ Rank Up
@@ -1221,10 +1224,10 @@ export default function GroupRoomPage() {
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
-                            <span className="font-mono text-xs text-orange-400 font-bold flex items-center gap-0.5">
+                            <span className="font-mono text-xs text-streak text-orange-400 font-bold flex items-center gap-0.5">
                               <Flame className="w-3.5 h-3.5 fill-current" /> {userRow.currentStreak}d
                             </span>
-                            <span className="font-mono text-xs font-black text-white">{userRow.score} pts</span>
+                            <span className="font-mono text-xs font-black text-text-primary">{userRow.score} pts</span>
                           </div>
                         </motion.div>
                       );
@@ -1239,13 +1242,13 @@ export default function GroupRoomPage() {
           <Card className="bg-background-surface border-border-subtle">
             <CardHeader className="pb-4 flex flex-row items-center justify-between">
               <div>
-                <CardTitle className="text-white font-extrabold text-lg flex items-center gap-2">
+                <CardTitle className="text-text-primary font-extrabold text-lg flex items-center gap-2">
                   <UserCheck className="w-4 h-4 text-accent-indigo" /> Squad Status
                 </CardTitle>
                 <CardDescription>Realtime active member rosters</CardDescription>
               </div>
               <Link to={`/groups/${groupId}/members`}>
-                <Button variant="ghost" size="sm" className="text-xs text-indigo-400 hover:text-white p-0">
+                <Button variant="ghost" size="sm" className="text-xs text-indigo-400 hover:text-text-primary p-0">
                   View All
                 </Button>
               </Link>
@@ -1260,12 +1263,12 @@ export default function GroupRoomPage() {
                     <div key={member.id} className="flex items-center justify-between px-6 py-3.5 border-b border-border-subtle/30 last:border-none">
                       <div className="flex items-center gap-3">
                         <div className="relative">
-                          <div className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-xs text-text-secondary uppercase">
+                          <div className="w-7 h-7 rounded-full bg-surface-muted border border-faint flex items-center justify-center font-bold text-xs text-text-secondary uppercase">
                             {member.name[0]}
                           </div>
                           <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-background-surface ${isOnline ? 'bg-emerald-500' : 'bg-text-muted'}`} />
                         </div>
-                        <span className="font-sans text-xs text-white font-medium truncate max-w-[120px]">{member.name}</span>
+                        <span className="font-sans text-xs text-text-primary font-medium truncate max-w-[120px]">{member.name}</span>
                       </div>
 
                       <div className="flex items-center gap-2.5">
@@ -1285,9 +1288,9 @@ export default function GroupRoomPage() {
           {activityLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : activities ? (
-            <Card className="bg-background-surface border-border-subtle">
+            <Card className="premium-card">
               <CardHeader className="pb-4">
-                <CardTitle className="text-white font-extrabold text-lg flex items-center gap-2">
+                <CardTitle className="text-text-primary font-extrabold text-lg flex items-center gap-2">
                   <Activity className="w-4 h-4 text-purple-400" /> Activity Stream
                 </CardTitle>
                 <CardDescription>WebSocket social logs feed</CardDescription>
@@ -1340,7 +1343,7 @@ export default function GroupRoomPage() {
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-semibold text-text-secondary">Difficulty Level</label>
             <select
-              className="w-full h-11 bg-background-base border border-border-subtle rounded-xl px-4 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full h-11 bg-background-base border border-border-subtle rounded-xl px-4 text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition-colors"
               {...activateForm.register('difficulty')}
             >
               <option value="Easy" className="bg-background-surface">Easy</option>
@@ -1353,7 +1356,7 @@ export default function GroupRoomPage() {
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-semibold text-text-secondary">Notes or Context (Optional)</label>
             <textarea
-              className="w-full bg-background-base border border-border-subtle rounded-xl p-4 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors h-20 resize-none"
+              className="w-full bg-background-base border border-border-subtle rounded-xl p-4 text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition-colors h-20 resize-none"
               placeholder="e.g. Solve using linear time complexity."
               {...activateForm.register('notes')}
             />
@@ -1424,7 +1427,7 @@ export default function GroupRoomPage() {
           <div className="space-y-1.5 text-left">
             <label className="text-xs font-semibold text-text-secondary">Completion Notes (Optional)</label>
             <textarea
-              className="w-full bg-background-base border border-border-subtle rounded-xl p-4 text-xs text-white focus:outline-none focus:border-indigo-500 transition-colors h-20 resize-none"
+              className="w-full bg-background-base border border-border-subtle rounded-xl p-4 text-xs text-text-primary focus:outline-none focus:border-indigo-500 transition-colors h-20 resize-none"
               placeholder="e.g. Solved using Hash Map logic."
               {...solveForm.register('notes')}
             />

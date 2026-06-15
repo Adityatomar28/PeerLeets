@@ -3,6 +3,7 @@
 import {
   signupService,
   loginService,
+  clerkSyncService,
 } from "../modules/auth/auth.service.js";
 import prisma from "../config/db.js";
 
@@ -32,6 +33,32 @@ export const login = async (req, res, next) => {
     res.status(500).json({
       success: false,
       message: error.message,
+    });
+  }
+};
+
+export const clerkSync = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({
+        success: false,
+        message: "Missing Clerk session token",
+      });
+    }
+
+    const clerkToken = authHeader.split(" ")[1];
+    const result = await clerkSyncService(clerkToken);
+
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: error.message || "Clerk sync failed",
     });
   }
 };

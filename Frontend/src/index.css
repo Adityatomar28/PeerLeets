@@ -20,6 +20,15 @@
   --nav-bg: rgba(2, 4, 8, 0.75);
   --card-top-glow: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
   --stat-box: #080C16;
+  --surface-muted: rgba(255, 255, 255, 0.04);
+  --surface-subtle: rgba(255, 255, 255, 0.02);
+  --border-faint: rgba(255, 255, 255, 0.06);
+  --overlay: rgba(0, 0, 0, 0.45);
+  --tooltip-bg: #0A0F1D;
+  --card-footer-bg: rgba(18, 22, 32, 0.45);
+  --accent-tint: rgba(99, 102, 241, 0.08);
+  --calendar-empty: rgba(255, 255, 255, 0.03);
+  --challenge-header-bg: #0E1219;
 }
 
 .light {
@@ -39,14 +48,28 @@
   --nav-bg: rgba(250, 247, 238, 0.85);
   --card-top-glow: linear-gradient(90deg, transparent, rgba(46, 42, 32, 0.06), transparent);
   --stat-box: #FAF5E8;
+  --surface-muted: rgba(46, 42, 32, 0.06);
+  --surface-subtle: rgba(46, 42, 32, 0.03);
+  --border-faint: rgba(46, 42, 32, 0.1);
+  --overlay: rgba(46, 42, 32, 0.3);
+  --tooltip-bg: #F5EFE0;
+  --card-footer-bg: rgba(46, 42, 32, 0.05);
+  --accent-tint: rgba(99, 102, 241, 0.1);
+  --calendar-empty: rgba(46, 42, 32, 0.08);
+  --challenge-header-bg: #EAE3CE;
 }
 
 @layer base {
   body {
     background-color: var(--bg-base);
     color: var(--text-primary);
-    @apply antialiased selection:bg-indigo-500/30 overflow-x-hidden;
+    @apply antialiased selection:bg-indigo-500/30 overflow-x-hidden font-sans;
     transition: background-color 0.4s ease, color 0.4s ease;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
   }
 }
 
@@ -289,4 +312,93 @@
 }
 .floating-hero-card-4 {
   animation: floatUpAndDown 9s infinite ease-in-out 2s;
+}
+
+/* Workspace / Dashboard utilities */
+.workspace-eyebrow {
+  @apply text-[10px] font-mono font-semibold uppercase tracking-eyebrow text-text-muted;
+}
+
+.stat-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  @apply rounded-2xl relative overflow-hidden transition-all duration-300;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--card-top-glow);
+  pointer-events: none;
+}
+
+.stat-card:hover {
+  border-color: var(--border-card-hover);
+  @apply -translate-y-0.5;
+}
+
+.light .stat-card:hover {
+  box-shadow: 0 12px 32px rgba(46, 42, 32, 0.06);
+}
+
+.profile-hero {
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--stat-box) 100%);
+  border: 1px solid var(--border-subtle);
+  @apply rounded-2xl relative overflow-hidden;
+}
+
+.profile-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top right, var(--accent-tint), transparent 60%);
+  pointer-events: none;
+}
+
+.bg-surface-muted {
+  background-color: var(--surface-muted);
+}
+
+.bg-surface-subtle {
+  background-color: var(--surface-subtle);
+}
+
+.border-faint {
+  border-color: var(--border-faint);
+}
+
+.bg-card-footer {
+  background-color: var(--card-footer-bg);
+}
+
+.bg-tooltip {
+  background-color: var(--tooltip-bg);
+}
+
+.bg-overlay {
+  background-color: var(--overlay);
+}
+
+.bg-calendar-empty {
+  background-color: var(--calendar-empty);
+}
+
+.page-title-gradient {
+  @apply bg-gradient-to-r from-text-primary via-text-primary to-indigo-400 bg-clip-text text-transparent;
+}
+
+.bg-challenge-header {
+  background-color: var(--challenge-header-bg);
+}
+
+.light .text-streak {
+  color: #c2410c;
+}
+
+.light .page-title-gradient {
+  @apply from-text-primary via-text-primary to-indigo-600;
 }
