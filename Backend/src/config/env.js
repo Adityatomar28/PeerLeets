@@ -8,7 +8,7 @@ const backendEnv = fileURLToPath(new URL("../../.env", import.meta.url));
 const rootEnv = fileURLToPath(new URL("../../../.env", import.meta.url));
 
 config({
-  path: [backendEnvLocal, backendEnv, rootEnv],
+  path: [backendEnvLocal, rootEnv, backendEnv],
   quiet: true,
 });
 

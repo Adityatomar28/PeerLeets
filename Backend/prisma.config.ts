@@ -5,8 +5,8 @@ import { defineConfig } from "prisma/config";
 config({
   path: [
     fileURLToPath(new URL(".env.local", import.meta.url)),
-    fileURLToPath(new URL(".env", import.meta.url)),
     fileURLToPath(new URL("../.env", import.meta.url)),
+    fileURLToPath(new URL(".env", import.meta.url)),
   ],
   quiet: true,
 });

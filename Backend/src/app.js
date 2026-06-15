@@ -28,7 +28,7 @@ startCronSchedulers();
 
 const app = express();
 // Enable CORS. Configure `CORS_ORIGIN` in production (e.g. your frontend URL).
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
 	.split(',')
 	.map((origin) => origin.trim())
 	.filter(Boolean);
@@ -37,9 +37,9 @@ const corsOptions = {
 	origin(origin, callback) {
 		if (!origin || allowedOrigins.includes(origin)) {
 			callback(null, true);
-			return;
+		} else {
+			callback(null, false);
 		}
-		callback(new Error(`Origin ${origin} is not allowed by CORS`));
 	},
 	credentials: true,
 };

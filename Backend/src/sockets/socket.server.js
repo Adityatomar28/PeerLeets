@@ -12,7 +12,7 @@ import { initGatewayListeners } from "./socket.gateway.js";
 export const initSocketServer = (httpServer) => {
   console.log("[Socket Server] Binding Socket.IO to HTTP server...");
 
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);

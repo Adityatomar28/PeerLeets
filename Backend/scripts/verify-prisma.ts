@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../src/config/db.js";
 
 async function verify() {
   try {
